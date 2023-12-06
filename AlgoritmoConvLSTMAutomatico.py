@@ -153,7 +153,7 @@ strategy = tf.distribute.MirroredStrategy()
 print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
 with strategy.scope():
 
-    for x in [x01, x10, x11]:
+    for x in [x00 ,x01, x10, x11]:
         if x is x00:
             parte = parte0_0
             rows = x00.shape[1]
@@ -224,6 +224,11 @@ with strategy.scope():
         print("Training dataset shapes: {}, {}".format(x_train.shape, y_train.shape))
         print("Validation dataset shapes: {}, {}".format(x_validation.shape, y_validation.shape))
         print("Test dataset shapes: {}, {}".format(x_test.shape, y_test.shape))
+
+        #crear carpeta
+        if not os.path.exists("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte):
+            os.makedirs("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte)
+            
 
         #DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1
         np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_test_mask.npy", x_test)
