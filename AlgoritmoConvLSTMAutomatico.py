@@ -7,6 +7,7 @@ import os
 import cv2
 #from google.colab import files
 import zipfile
+import sys
 
 def create_shifted_frames_2(data):
     x = data[:, 0 : data.shape[1] - 1, :, :]
@@ -231,7 +232,7 @@ with strategy.scope():
         np.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_validation_mask.npy", x_validation)
         np.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_validation_mask.npy", y_validation)
 
-        import sys
+        
 
         # Define the path where you want to save the log file
         log_file_path = "DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/InfoConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".txt"
