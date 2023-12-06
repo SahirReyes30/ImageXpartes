@@ -136,6 +136,7 @@ parte0_0 = "Part0_0"
 parte0_1 = "Part0_1"
 parte1_0 = "Part1_0"
 parte1_1 = "Part1_1"
+carpeta = "v2"
 
 imagenInicial = 300
 
@@ -225,17 +226,17 @@ with strategy.scope():
         print("Test dataset shapes: {}, {}".format(x_test.shape, y_test.shape))
 
         #DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_test_mask.npy", x_test)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_test_mask.npy", y_test)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_train_mask.npy", x_train)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_train_mask.npy", y_train)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_validation_mask.npy", x_validation)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_validation_mask.npy", y_validation)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_test_mask.npy", x_test)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_test_mask.npy", y_test)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_train_mask.npy", x_train)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_train_mask.npy", y_train)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_validation_mask.npy", x_validation)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_validation_mask.npy", y_validation)
 
         
 
         # Define the path where you want to save the log file
-        log_file_path = "DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/InfoConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".txt"
+        log_file_path = "DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/InfoConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".txt"
 
         # Save the original stdout so we can restore it later
         original_stdout = sys.stdout
@@ -257,7 +258,7 @@ with strategy.scope():
         early_stopping = keras.callbacks.EarlyStopping(monitor= "val_loss", patience= 6, restore_best_weights= True)
         reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor= "val_loss", patience= 6)
         model_checkpoint = keras.callbacks.ModelCheckpoint(
-            filepath= "DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/ConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".h5",
+            filepath= "DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/ConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".h5",
             monitor= "val_loss",
             save_best_only= True,
             mode= "min"
@@ -278,7 +279,7 @@ with strategy.scope():
 
         #Guardar el modelo
         
-        model.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/ConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".h5")
+        model.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/ConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".h5")
     
 
         print (f"lengeth x_test: {len(x_test)}")
@@ -303,7 +304,7 @@ with strategy.scope():
         res_forecast = add_last(x_test_new, preds4[:])
         print("PREDSS",res_forecast.shape)
 
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy", res_forecast)  #Guardar el vector de predicciones
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy", res_forecast)  #Guardar el vector de predicciones
 
         print("Res_forecast" , res_forecast.shape)
 
@@ -318,28 +319,28 @@ with strategy.scope():
         plt.show()
 
         #matriz de confusion
-        data00 = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_0/PredictionsConvolutionLSTM_forecast_61_180_Part0_0_w5.npy")
-        data01 = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1/PredictionsConvolutionLSTM_forecast_61_190_Part0_1_w5.npy")
-        data10 = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_0/PredictionsConvolutionLSTM_forecast_71_180_Part1_0_w5.npy")
-        data11 = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_1/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w5.npy")
+        data00 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_0/PredictionsConvolutionLSTM_forecast_61_180_Part0_0_w5.npy")
+        data01 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_1/PredictionsConvolutionLSTM_forecast_61_190_Part0_1_w5.npy")
+        data10 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_0/PredictionsConvolutionLSTM_forecast_71_180_Part1_0_w5.npy")
+        data11 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_1/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w5.npy")
 
         for data in [data00 ,data01, data10, data11]:
             if data is data00:
                 parte = parte0_0
-                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_0/x_test_mask.npy")
-                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_0/y_test_mask.npy")
+                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_0/x_test_mask.npy")
+                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_0/y_test_mask.npy")
             elif data is data01:
                 parte = parte0_1
-                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1/x_test_mask.npy")
-                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1/y_test_mask.npy")
+                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_1/x_test_mask.npy")
+                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_1/y_test_mask.npy")
             elif data is data10:
                 parte = parte1_0
-                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_0/x_test_mask.npy")
-                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_0/y_test_mask.npy")
+                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_0/x_test_mask.npy")
+                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_0/y_test_mask.npy")
             elif data is data11:
                 parte = parte1_1
-                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_1/x_test_mask.npy")
-                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_1/y_test_mask.npy")
+                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_1/x_test_mask.npy")
+                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_1/y_test_mask.npy")
 
         classes = np.array([0, 255, 220, 177, 119, 70, 35]) # 255, 220, 177, 119, 70, 35  0
         classes_rgb = np.array([[0,0,0], [35,35,35], [70,70,70], [119,119,119], [177,177,177], [220,220,220], [255,255,255]])
@@ -474,7 +475,7 @@ with strategy.scope():
         offset = df_cm_f.shape[1] + 2
 
         # Crear un escritor de Excel
-        with pd.ExcelWriter("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/combined_confusion_matrices.xlsx") as writer:
+        with pd.ExcelWriter("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/combined_confusion_matrices.xlsx") as writer:
             # Escribir la primera matriz en la hoja de cálculo empezando en la primera columna
             df_cm_f.to_excel(writer, startcol=0, index=True)
 
