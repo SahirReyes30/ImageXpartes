@@ -318,35 +318,34 @@ with strategy.scope():
         print("y_test" , y_test.shape)
 
         # Selecciona la primera imagen y elimina la dimensión de canal singular con squeeze()
-        plt.imshow(preds[0].squeeze(), cmap='gray')
-        plt.title("First Predicted Image")
-        plt.axis('off')
-        plt.show()
+        #plt.imshow(preds[0].squeeze(), cmap='gray')
+        #plt.title("First Predicted Image")
+        #plt.axis('off')
+        #plt.show()
+    
 
-        #matriz de confusion
-        data00 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_0/PredictionsConvolutionLSTM_forecast_61_180_Part0_0_w5.npy")
-        data01 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_1/PredictionsConvolutionLSTM_forecast_61_190_Part0_1_w5.npy")
-        data10 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_0/PredictionsConvolutionLSTM_forecast_71_180_Part1_0_w5.npy")
-        data11 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_1/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w5.npy")
-
-        for data in [data00 ,data01, data10, data11]:
-            if data is data00:
-                parte = parte0_0
-                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_0/x_test_mask.npy")
-                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_0/y_test_mask.npy")
-            elif data is data01:
-                parte = parte0_1
-                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_1/x_test_mask.npy")
-                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_1/y_test_mask.npy")
-            elif data is data10:
-                parte = parte1_0
-                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_0/x_test_mask.npy")
-                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_0/y_test_mask.npy")
-            elif data is data11:
-                parte = parte1_1
-                x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_1/x_test_mask.npy")
-                y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_1/y_test_mask.npy")
-
+    #matriz de confusion
+    data00 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_0/PredictionsConvolutionLSTM_forecast_61_180_Part0_0_w5.npy")
+    data01 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_1/PredictionsConvolutionLSTM_forecast_61_190_Part0_1_w5.npy")
+    data10 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_0/PredictionsConvolutionLSTM_forecast_71_180_Part1_0_w5.npy")
+    data11 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_1/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w5.npy")
+    for data in [data00 ,data01, data10, data11]:
+        if data is data00:
+            parte = parte0_0
+            x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_0/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_0/y_test_mask.npy")
+        elif data is data01:
+            parte = parte0_1
+            x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_1/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part0_1/y_test_mask.npy")
+        elif data is data10:
+            parte = parte1_0
+            x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_0/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_0/y_test_mask.npy")
+        elif data is data11:
+            parte = parte1_1
+            x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_1/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180Part1_1/y_test_mask.npy")
         classes = np.array([0, 255, 220, 177, 119, 70, 35]) # 255, 220, 177, 119, 70, 35  0
         classes_rgb = np.array([[0,0,0], [35,35,35], [70,70,70], [119,119,119], [177,177,177], [220,220,220], [255,255,255]])
         rows = len(x_test[0,0])
