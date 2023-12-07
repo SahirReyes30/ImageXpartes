@@ -502,39 +502,39 @@ with strategy.scope():
 
         
 
-        fig = plt.figure(figsize=(20,20))
-        r = 3
-        c = 4
-        ac = 1
-        pos = 100
+        #fig = plt.figure(figsize=(20,20))
+        #r = 3
+        #c = 4
+        #ac = 1
+        #pos = 100
 
-        for i in range(h):
-            ax = fig.add_subplot(r, c, ac)
-            ax.imshow(y_test[pos,i], cmap='gray')
-            ax.axis('off')
-            ax.set_title('Original_t+{}'.format(i+1))
-            ac += 1
-        plt.tight_layout()
-        plt.show()
-        fig = plt.figure(figsize=(20,20))
-        for i in range(h):
-            ax = fig.add_subplot(r, c, ac)
-            ax.imshow(new_data[pos,i], cmap='gray')
-            ax.axis('off')
-            ax.set_title('Pronóstico_t+{}'.format(i+1))
-            ac += 1
-        plt.tight_layout()
-        plt.show()
-        fig = plt.figure(figsize=(20,20))
+        #for i in range(h):
+        #    ax = fig.add_subplot(r, c, ac)
+        #    ax.imshow(y_test[pos,i], cmap='gray')
+        #    ax.axis('off')
+        #    ax.set_title('Original_t+{}'.format(i+1))
+        #    ac += 1
+        #plt.tight_layout()
+        #plt.show()
+        #fig = plt.figure(figsize=(20,20))
+        #for i in range(h):
+        #    ax = fig.add_subplot(r, c, ac)
+        #    ax.imshow(new_data[pos,i], cmap='gray')
+        #    ax.axis('off')
+        #    ax.set_title('Pronóstico_t+{}'.format(i+1))
+        #    ac += 1
+        #plt.tight_layout()
+        #plt.show()
+        #fig = plt.figure(figsize=(20,20))
 
-        for i in range(h):
-            ax = fig.add_subplot(r, c, ac)
-            ax.imshow(naive[pos,i], cmap='gray')
-            ax.axis('off')
-            ax.set_title('Naive_t+{}'.format(i+1))
-            ac += 1
+        #for i in range(h):
+        #    ax = fig.add_subplot(r, c, ac)
+        #    ax.imshow(naive[pos,i], cmap='gray')
+        #    ax.axis('off')
+        #    ax.set_title('Naive_t+{}'.format(i+1))
+        #    ac += 1
 
-        # Ajustar el espaciado entre subplots
-        plt.subplots_adjust(wspace=.1, hspace=0.05)  # Puedes disminuir estos valores si es necesario
-        plt.tight_layout()
-        plt.show()
+        ## Ajustar el espaciado entre subplots
+        #plt.subplots_adjust(wspace=.1, hspace=0.05)  # Puedes disminuir estos valores si es necesario
+        #plt.tight_layout()
+        #plt.show()
