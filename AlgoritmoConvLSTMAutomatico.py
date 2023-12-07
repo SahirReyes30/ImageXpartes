@@ -136,7 +136,16 @@ parte0_0 = "Part0_0"
 parte0_1 = "Part0_1"
 parte1_0 = "Part1_0"
 parte1_1 = "Part1_1"
-carpeta = "v2"
+carpeta = ""
+
+#leer una entrada de usuario por consola para variable de carpeta
+carpeta = input("Ingrese el nombre de la carpeta: ")
+print(carpeta)
+
+#crear carpeta si no existe
+if not os.path.exists("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta):
+    os.makedirs("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta)
+
 
 imagenInicial = 300
 
