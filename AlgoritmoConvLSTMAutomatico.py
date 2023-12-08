@@ -129,7 +129,7 @@ def get_cubes(data, h):
     return new_data
 
 channels = 1
-window = 9
+window = 5
 categories = [0, 35, 70, 119, 177, 220, 255] 
 horizon = 4
 parte0_0 = "Part0_0"
@@ -240,12 +240,12 @@ with strategy.scope():
             
 
         #DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_test_mask.npy", x_test)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_test_mask.npy", y_test)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_train_mask.npy", x_train)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_train_mask.npy", y_train)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_validation_mask.npy", x_validation)
-        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_validation_mask.npy", y_validation)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy", x_test)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy", y_test)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_train_mask.npy", x_train)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_train_mask.npy", y_train)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_validation_mask.npy", x_validation)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_validation_mask.npy", y_validation)
 
         #cargar datos    
         #x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_test_mask.npy")
