@@ -129,7 +129,7 @@ def get_cubes(data, h):
     return new_data
 
 channels = 1
-window = 5
+window = 8
 categories = [0, 35, 70, 119, 177, 220, 255] 
 horizon = 4
 parte0_0 = "Part0_0"
@@ -333,12 +333,12 @@ with strategy.scope():
         print("x_test_new" , x_test_new.shape)
         print("y_test" , y_test.shape)
 
-        # Selecciona la primera imagen y elimina la dimensión de canal singular con squeeze()
-        #plt.imshow(preds[0].squeeze(), cmap='gray')
-        #plt.title("First Predicted Image")
-        #plt.axis('off')
-        #plt.show()
-    
+#        # Selecciona la primera imagen y elimina la dimensión de canal singular con squeeze()
+#        #plt.imshow(preds[0].squeeze(), cmap='gray')
+#        #plt.title("First Predicted Image")
+#        #plt.axis('off')
+#        #plt.show()
+#    
 
     #matriz de confus
     data00 = "1"
@@ -348,32 +348,40 @@ with strategy.scope():
     for data in [data00 ,data01, data10, data11]:
         if data is data00:
             parte = parte0_0 #DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_0/x_test_mask.npy
+            rows = 61
+            cols = 180
             x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
             y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
             rows = len(x_test[0,0])
             cols= len(x_test[0,0,0])
-            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_61_180_Part0_0_w5.npy")
+            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_61_180_Part0_0_w"+str(window)+".npy")
         elif data is data01:
             parte = parte0_1
+            rows = 61
+            cols = 190
             x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
             y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
             rows = len(x_test[0,0])
             cols= len(x_test[0,0,0])
-            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_61_190_Part0_1_w5.npy")
+            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_61_190_Part0_1_w"+str(window)+".npy")
         elif data is data10:
             parte = parte1_0
+            rows = 71
+            cols = 180
             x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
             y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
             rows = len(x_test[0,0])
             cols= len(x_test[0,0,0])
-            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_71_180_Part1_0_w5.npy")
+            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_71_180_Part1_0_w"+str(window)+".npy")
         elif data is data11:
             parte = parte1_1
+            rows = 71
+            cols = 190
             x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
             y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
             rows = len(x_test[0,0])
             cols= len(x_test[0,0,0])
-            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w5.npy")
+            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w"+str(window)+".npy")
             
         print ("data",data.shape)
         print ("BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w5.npy")
