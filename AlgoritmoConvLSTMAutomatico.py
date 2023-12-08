@@ -129,7 +129,7 @@ def get_cubes(data, h):
     return new_data
 
 channels = 1
-window = 5
+window = 9
 categories = [0, 35, 70, 119, 177, 220, 255] 
 horizon = 4
 parte0_0 = "Part0_0"
@@ -195,65 +195,65 @@ with strategy.scope():
         print("x", x.min())
         print("x", x.max())
         
-        #x = np.array([gray_quantized(i, np.array(categories)) for i in x])
-        #colors_greys = get_colors(x[1168])
-        #print(f"Colores {colors_greys}")
-        #print(x.shape)
-#
-        ##inicio
-        #x = np.array([gray_quantized(i, np.array(categories)) for i in x])
-        #colors_greys = get_colors(x[1168])
-        #print(f"Colores {colors_greys}")
-        #print(x.shape)
-#
-        #x_greys = np.array([recolor_greys_image(img, categories) for img in x])
-        #x = x_greys.astype('float32') / 255
-        #print(get_colors(x[1168]))
-        #print(x.shape)
-#
-        #x_2 = agroup_window(x, window)
-        #print(x_2.shape)
-        #x_train = x_2[:int(len(x_2)*.7)]
-        #x_test = x_2[int(len(x_2)*.7):]
-        #x_validation = x_train[int(len(x_train)*.8):]
-        #x_train = x_train[:int(len(x_train)*.8)]
-#
-        #x_train = x_train.reshape(len(x_train), window, rows, cols, channels)
-        #x_validation = x_validation.reshape(len(x_validation), window, rows, cols, channels)
-        #x_test = x_test.reshape(len(x_test), window, rows, cols, channels)
-#
-        #print("Forma de datos de entrenamiento: {}".format(x_train.shape))
-        #print("Forma de datos de validación: {}".format(x_validation.shape))
-        #print("Forma de datos de pruebas: {}".format(x_test.shape))
-#
-        #x_train, y_train = create_shifted_frames_2(x_train)
-        #x_validation, y_validation = create_shifted_frames_2(x_validation)
-        #x_test, y_test = create_shifted_frames_2(x_test)
-#
-        #print("Training dataset shapes: {}, {}".format(x_train.shape, y_train.shape))
-        #print("Validation dataset shapes: {}, {}".format(x_validation.shape, y_validation.shape))
-        #print("Test dataset shapes: {}, {}".format(x_test.shape, y_test.shape))
-#
+        x = np.array([gray_quantized(i, np.array(categories)) for i in x])
+        colors_greys = get_colors(x[1168])
+        print(f"Colores {colors_greys}")
+        print(x.shape)
+
+        #inicio
+        x = np.array([gray_quantized(i, np.array(categories)) for i in x])
+        colors_greys = get_colors(x[1168])
+        print(f"Colores {colors_greys}")
+        print(x.shape)
+
+        x_greys = np.array([recolor_greys_image(img, categories) for img in x])
+        x = x_greys.astype('float32') / 255
+        print(get_colors(x[1168]))
+        print(x.shape)
+
+        x_2 = agroup_window(x, window)
+        print(x_2.shape)
+        x_train = x_2[:int(len(x_2)*.7)]
+        x_test = x_2[int(len(x_2)*.7):]
+        x_validation = x_train[int(len(x_train)*.8):]
+        x_train = x_train[:int(len(x_train)*.8)]
+
+        x_train = x_train.reshape(len(x_train), window, rows, cols, channels)
+        x_validation = x_validation.reshape(len(x_validation), window, rows, cols, channels)
+        x_test = x_test.reshape(len(x_test), window, rows, cols, channels)
+
+        print("Forma de datos de entrenamiento: {}".format(x_train.shape))
+        print("Forma de datos de validación: {}".format(x_validation.shape))
+        print("Forma de datos de pruebas: {}".format(x_test.shape))
+
+        x_train, y_train = create_shifted_frames_2(x_train)
+        x_validation, y_validation = create_shifted_frames_2(x_validation)
+        x_test, y_test = create_shifted_frames_2(x_test)
+
+        print("Training dataset shapes: {}, {}".format(x_train.shape, y_train.shape))
+        print("Validation dataset shapes: {}, {}".format(x_validation.shape, y_validation.shape))
+        print("Test dataset shapes: {}, {}".format(x_test.shape, y_test.shape))
+
         #crear carpeta
         if not os.path.exists("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte):
             os.makedirs("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte)
             
-#
-        ##DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1
-        #np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_test_mask.npy", x_test)
-        #np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_test_mask.npy", y_test)
-        #np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_train_mask.npy", x_train)
-        #np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_train_mask.npy", y_train)
-        #np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_validation_mask.npy", x_validation)
-        #np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_validation_mask.npy", y_validation)
+
+        #DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_test_mask.npy", x_test)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_test_mask.npy", y_test)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_train_mask.npy", x_train)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_train_mask.npy", y_train)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/x_validation_mask.npy", x_validation)
+        np.save("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/61_180"+parte+"/y_validation_mask.npy", y_validation)
 
         #cargar datos    
-        x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_test_mask.npy")
-        y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_test_mask.npy")
-        x_train = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_train_mask.npy")
-        y_train = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_train_mask.npy")
-        x_validation = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_validation_mask.npy")
-        y_validation = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_validation_mask.npy")
+        #x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_test_mask.npy")
+        #y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_test_mask.npy")
+        #x_train = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_train_mask.npy")
+        #y_train = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_train_mask.npy")
+        #x_validation = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_validation_mask.npy")
+        #y_validation = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/y_validation_mask.npy")
 
 
         # Define the path where you want to save the log file
@@ -340,7 +340,7 @@ with strategy.scope():
         #plt.show()
     
 
-    #matriz de confus DroughtDatasetMask/dataset/BordesNuevos/v5         /  71         _       190  Part1_1/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w5.npy
+    #matriz de confus
     data00 = "1"
     data01 = "2"
     data10 = "3"
