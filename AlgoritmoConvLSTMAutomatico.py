@@ -340,28 +340,43 @@ with strategy.scope():
         #plt.show()
     
 
-    #matriz de confusion
-    data00 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_61_180_Part0_0_w5.npy")
-    data01 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_61_190_Part0_1_w5.npy")
-    data10 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_71_180_Part1_0_w5.npy")
-    data11 = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w5.npy")
+    #matriz de confus DroughtDatasetMask/dataset/BordesNuevos/v5         /  71         _       190  Part1_1/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w5.npy
+    data00 = "1"
+    data01 = "2"
+    data10 = "3"
+    data11 = "4"
     for data in [data00 ,data01, data10, data11]:
         if data is data00:
             parte = parte0_0 #DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_0/x_test_mask.npy
             x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_0/x_test_mask.npy")
             y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_0/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_61_180_Part0_0_w5.npy")
         elif data is data01:
             parte = parte0_1
             x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1/x_test_mask.npy")
             y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_61_190_Part0_1_w5.npy")
         elif data is data10:
             parte = parte1_0
             x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_0/x_test_mask.npy")
             y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_0/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_71_180_Part1_0_w5.npy")
         elif data is data11:
             parte = parte1_1
             x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_1/x_test_mask.npy")
             y_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180Part1_1/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_71_190_Part1_1_w5.npy")
+            
+        print ("data",data.shape)
+        print ("BordesNuevos/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w5.npy")
         classes = np.array([0, 255, 220, 177, 119, 70, 35]) # 255, 220, 177, 119, 70, 35  0
         classes_rgb = np.array([[0,0,0], [35,35,35], [70,70,70], [119,119,119], [177,177,177], [220,220,220], [255,255,255]])
         rows = len(x_test[0,0])
