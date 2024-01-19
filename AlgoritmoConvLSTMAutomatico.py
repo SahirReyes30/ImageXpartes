@@ -127,7 +127,7 @@ def get_cubes(data, h):
     new_data = np.array(new_data)
     print(new_data.shape)
     return new_data
-
+ 
 channels = 1
 window = 21
 categories = [0, 35, 70, 119, 177, 220, 255] 
