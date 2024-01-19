@@ -474,7 +474,7 @@ with strategy.scope():
     # Lista los archivos en el directorio
     files = os.listdir(folder_path)
     print(files)
-    for data in [data00 ,data01, data02, data10, data11, data12, data20, data21, data22]:
+    for data in [data00 ,data01, data02, data03, data10, data11, data12, data13, data20, data21, data22, data23, data30, data31, data32, data33]:
         if data is data00:
             parte = parte0_0 
 
@@ -497,6 +497,10 @@ with strategy.scope():
             rows = parts[0]  
             cols = parts[1]
             cols = cols[:3]
+            
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+
             print("rows",rows)
             print("cols",cols)
                 
@@ -530,6 +534,9 @@ with strategy.scope():
             rows = parts[0]  
             cols = parts[1]
             cols = cols[:3]
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+
             print("rows",rows)
             print("cols",cols)
             #rows = 61
@@ -560,10 +567,44 @@ with strategy.scope():
             rows = parts[0]  
             cols = parts[1]
             cols = cols[:3]
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
             print("rows",rows)
             print("cols",cols)
             #rows = 61
             #cols = 200
+            x_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+        elif data is data03:
+            parte = parte0_3
+                        # Palabra a buscar
+            search_term = parte
+
+            # Buscar la palabra en los archivos y seleccionar el primer archivo que coincida
+            selected_file = next((file for file in files if search_term in file), None)
+
+            # Verificar si encontramos un archivo que coincida
+            if selected_file:
+                print(f"Archivo seleccionado: {selected_file}")
+            else:
+                print(f"No se encontró ningún archivo que contenga la palabra '{search_term}'.")
+
+            # Split the string by the underscore character
+            parts = selected_file.split("_")
+
+            # Assign the parts to rows and cols
+            rows = parts[0]  
+            cols = parts[1]
+            cols = cols[:3]
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+            print("rows",rows)
+            print("cols",cols)
+            #rows = 61
+            #cols = 210
             x_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
             y_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
             rows = len(x_test[0,0])
@@ -590,6 +631,8 @@ with strategy.scope():
             rows = parts[0]  
             cols = parts[1]
             cols = cols[:3]
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
             print("rows",rows)
             print("cols",cols)
             #rows = 71
@@ -620,6 +663,8 @@ with strategy.scope():
             rows = parts[0]  
             cols = parts[1]
             cols = cols[:3]
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
             print("rows",rows)
             print("cols",cols)
             #rows = 71
@@ -650,6 +695,9 @@ with strategy.scope():
             rows = parts[0]  
             cols = parts[1]
             cols = cols[:3]
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+
             print("rows",rows)
             print("cols",cols)
             #rows = 71
@@ -659,6 +707,40 @@ with strategy.scope():
             rows = len(x_test[0,0])
             cols= len(x_test[0,0,0])
             data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+        elif data is data13:
+            parte = parte1_3
+            # Palabra a buscar
+            search_term = parte
+
+            # Buscar la palabra en los archivos y seleccionar el primer archivo que coincida
+            selected_file = next((file for file in files if search_term in file), None)
+
+            # Verificar si encontramos un archivo que coincida
+            if selected_file:
+                print(f"Archivo seleccionado: {selected_file}")
+            else:
+                print(f"No se encontró ningún archivo que contenga la palabra '{search_term}'.")
+
+            # Split the string by the underscore character
+            parts = selected_file.split("_")
+
+            print("parts",parts)
+            # Assign the parts to rows and cols
+            rows = parts[0]  
+            cols = parts[1]
+            cols = cols[:3]
+            print("cols",cols)
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+            print("rows",rows)
+            print("cols",cols)
+            #rows = 71
+            #cols = 210
+            x_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols = len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
         elif data is data20:
             parte = parte2_0
                         # Palabra a buscar
@@ -680,6 +762,8 @@ with strategy.scope():
             rows = parts[0]  
             cols = parts[1]
             cols = cols[:3]
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
             print("rows",rows)
             print("cols",cols)
             #rows = 81
@@ -710,6 +794,8 @@ with strategy.scope():
             rows = parts[0]  
             cols = parts[1]
             cols = cols[:3] 
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
             print("rows",rows)
             print("cols",cols)
             #rows = 81
@@ -740,6 +826,8 @@ with strategy.scope():
             rows = parts[0]  
             cols = parts[1]
             cols = cols[:3] 
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
             print("rows",rows)
             print("cols",cols)
             #rows = 81
@@ -749,6 +837,168 @@ with strategy.scope():
             rows = len(x_test[0,0])
             cols= len(x_test[0,0,0])
             data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+        elif data is data23:
+            parte = parte2_3
+                        # Palabra a buscar
+            search_term = parte
+
+            # Buscar la palabra en los archivos y seleccionar el primer archivo que coincida
+            selected_file = next((file for file in files if search_term in file), None)
+
+            # Verificar si encontramos un archivo que coincida
+            if selected_file:
+                print(f"Archivo seleccionado: {selected_file}")
+            else:
+                print(f"No se encontró ningún archivo que contenga la palabra '{search_term}'.")
+
+            # Split the string by the underscore character
+            parts = selected_file.split("_")
+
+            # Assign the parts to rows and cols
+            rows = parts[0]  
+            cols = parts[1]
+            cols = cols[:3] 
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+            print("rows",rows)
+            print("cols",cols)
+            #rows = 81
+            #cols = 200
+            x_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+        elif data is data30:
+            parte = parte3_0
+                        # Palabra a buscar
+            search_term = parte
+
+            # Buscar la palabra en los archivos y seleccionar el primer archivo que coincida
+            selected_file = next((file for file in files if search_term in file), None)
+
+            # Verificar si encontramos un archivo que coincida
+            if selected_file:
+                print(f"Archivo seleccionado: {selected_file}")
+            else:
+                print(f"No se encontró ningún archivo que contenga la palabra '{search_term}'.")
+
+            # Split the string by the underscore character
+            parts = selected_file.split("_")
+
+            # Assign the parts to rows and cols
+            rows = parts[0]  
+            cols = parts[1]
+            cols = cols[:3] 
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+            print("rows",rows)
+            print("cols",cols)
+            #rows = 81
+            #cols = 200
+            x_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+        elif data is data31:
+            parte = parte3_1
+                        # Palabra a buscar
+            search_term = parte
+
+            # Buscar la palabra en los archivos y seleccionar el primer archivo que coincida
+            selected_file = next((file for file in files if search_term in file), None)
+
+            # Verificar si encontramos un archivo que coincida
+            if selected_file:
+                print(f"Archivo seleccionado: {selected_file}")
+            else:
+                print(f"No se encontró ningún archivo que contenga la palabra '{search_term}'.")
+
+            # Split the string by the underscore character
+            parts = selected_file.split("_")
+
+            # Assign the parts to rows and cols
+            rows = parts[0]  
+            cols = parts[1]
+            cols = cols[:3] 
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+            print("rows",rows)
+            print("cols",cols)
+            #rows = 81
+            #cols = 200
+            x_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+        elif data is data32:
+            parte = parte3_2
+                        # Palabra a buscar
+            search_term = parte
+
+            # Buscar la palabra en los archivos y seleccionar el primer archivo que coincida
+            selected_file = next((file for file in files if search_term in file), None)
+
+            # Verificar si encontramos un archivo que coincida
+            if selected_file:
+                print(f"Archivo seleccionado: {selected_file}")
+            else:
+                print(f"No se encontró ningún archivo que contenga la palabra '{search_term}'.")
+
+            # Split the string by the underscore character
+            parts = selected_file.split("_")
+
+            # Assign the parts to rows and cols
+            rows = parts[0]  
+            cols = parts[1]
+            cols = cols[:3] 
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+            print("rows",rows)
+            print("cols",cols)
+            #rows = 81
+            #cols = 200
+            x_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+        elif data is data33:
+            parte = parte3_3
+                        # Palabra a buscar
+            search_term = parte
+
+            # Buscar la palabra en los archivos y seleccionar el primer archivo que coincida
+            selected_file = next((file for file in files if search_term in file), None)
+
+            # Verificar si encontramos un archivo que coincida
+            if selected_file:
+                print(f"Archivo seleccionado: {selected_file}")
+            else:
+                print(f"No se encontró ningún archivo que contenga la palabra '{search_term}'.")
+
+            # Split the string by the underscore character
+            parts = selected_file.split("_")
+
+            # Assign the parts to rows and cols
+            rows = parts[0]  
+            cols = parts[1]
+            cols = cols[:3] 
+            if cols[2] == 'P':
+                cols = cols[:2] + cols[3:]
+            print("rows",rows)
+            print("cols",cols)
+            #rows = 81
+            #cols = 200
+            x_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
+            rows = len(x_test[0,0])
+            cols= len(x_test[0,0,0])
+            data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+        
+
             
         print ("data",data.shape)
         print ("Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w5.npy")
