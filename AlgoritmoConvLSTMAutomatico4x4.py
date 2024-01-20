@@ -1039,16 +1039,16 @@ with strategy.scope():
         print(n_real.shape)
 
         #cambio 60 a 40
-        print(min(new_data[0,0,40]))
-        print(max(new_data[0,0,40]))
+        print(min(new_data[0,0,30]))
+        print(max(new_data[0,0,30]))
 
         new_data = new_data * 255
         new_data = new_data.astype(np.uint8)
 
         print("new_data", new_data.shape)
         print(colorss.shape)
-        print(min(new_data[0,0,40]))
-        print(max(new_data[0,0,40]))
+        print(min(new_data[0,0,30]))
+        print(max(new_data[0,0,30]))
 
         new_data = new_data.reshape(new_data.shape[:-1])
         print("HoY", new_data.shape)
