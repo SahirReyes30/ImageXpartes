@@ -129,7 +129,7 @@ def get_cubes(data, h):
     return new_data
 
 channels = 1
-window = 10
+window = 21
 categories = [0, 35, 70, 119, 177, 220, 255] 
 horizon = 4
 
@@ -740,7 +740,7 @@ with strategy.scope():
             y_test = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
             rows = len(x_test[0,0])
             cols = len(x_test[0,0,0])
-            data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+            data = np.load("DroughtDatasetMask/dataset/Resultados4x4/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
         elif data is data20:
             parte = parte2_0
                         # Palabra a buscar
