@@ -119,7 +119,7 @@ def add_lastNew(data, new_val):
     return x_test_new
 
 
-    #Crea cubos con su propia información de tamaño h
+#Crea cubos con su propia información de tamaño h
 def get_cubes(data, h):
     new_data = []
     for i in range(0, len(data)-h):
@@ -129,7 +129,7 @@ def get_cubes(data, h):
     return new_data
  
 channels = 1
-window = 21
+window = 10
 categories = [0, 35, 70, 119, 177, 220, 255] 
 horizon = 4
 parte0_0 = "Part0_0"
@@ -143,8 +143,8 @@ carpeta = input("Ingrese el nombre de la carpeta: ")
 print(carpeta)
 
 #crear carpeta si no existe
-if not os.path.exists("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta):
-    os.makedirs("DroughtDatasetMask/dataset/BordesNuevos/"+carpeta)
+if not os.path.exists("DroughtDatasetMask/dataset/Resultado2x2/"+carpeta):
+    os.makedirs("DroughtDatasetMask/dataset/Resultado2x2/"+carpeta)
 
 
 imagenInicial = 300
