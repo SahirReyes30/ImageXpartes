@@ -129,7 +129,7 @@ def get_cubes(data, h):
     return new_data
 
 channels = 1
-window = 21
+window = 22
 categories = [0, 35, 70, 119, 177, 220, 255] 
 horizon = 4
 
