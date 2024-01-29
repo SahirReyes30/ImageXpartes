@@ -119,7 +119,7 @@ def add_lastNew(data, new_val):
     return x_test_new
 
 
-    #Crea cubos con su propia información de tamaño h
+#Crea cubos con su propia información de tamaño h
 def get_cubes(data, h):
     new_data = []
     for i in range(0, len(data)-h):
@@ -129,7 +129,7 @@ def get_cubes(data, h):
     return new_data
 
 channels = 1
-window = 10
+window = 22
 categories = [0, 35, 70, 119, 177, 220, 255] 
 horizon = 4
 
