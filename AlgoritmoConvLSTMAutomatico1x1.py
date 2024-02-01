@@ -174,11 +174,6 @@ with strategy.scope():
         print("x", x.dtype)
         print("x", x.min())
         print("x", x.max())
-        
-        x = np.array([gray_quantized(i, np.array(categories)) for i in x])
-        colors_greys = get_colors(x[1168])
-        print(f"Colores {colors_greys}")
-        print(x.shape)
 
         #inicio
         x = np.array([gray_quantized(i, np.array(categories)) for i in x])
@@ -294,14 +289,16 @@ with strategy.scope():
         err = model.evaluate(x_test, y_test, batch_size= 2)
         print("El error del modelo es: {}".format(err))
         preds = model.predict(x_test, batch_size= 2)
-        print(preds.shape)
+        print("preds",preds.shape)
         x_test_new = add_last(x_test, preds[:])
         preds2 = model.predict(x_test_new, batch_size= 2)
-        #print(preds2.shape)
+        print("preds2",preds2.shape)
         x_test_new = add_last(x_test_new, preds2[:])
         preds3 = model.predict(x_test_new, batch_size= 2)
+        print ("preds3",preds3.shape)
         x_test_new = add_last(x_test_new, preds3[:])
         preds4 = model.predict(x_test_new, batch_size= 2)
+        print ("preds4",preds4.shape)
         res_forecast = add_last(x_test_new, preds4[:])
         print("PREDSS",res_forecast.shape)
 
