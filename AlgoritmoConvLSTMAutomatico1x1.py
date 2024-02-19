@@ -133,7 +133,7 @@ window = 10
 categories = [0, 35, 70, 119, 177, 220, 255] 
 horizon = 4
 
-parte0_0 = "Part0_0"
+parte0_0 = "EspacioLatente"
 
 carpeta = ""
 
@@ -142,13 +142,13 @@ carpeta = input("Ingrese el nombre de la carpeta: ")
 print(carpeta)
 
 #crear carpeta si no existe
-if not os.path.exists("DDroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta):
-    os.makedirs("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta)
+if not os.path.exists("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta):
+    os.makedirs("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta)
 
 
 imagenInicial = 300
 
-x00 = np.load("DroughtDatasetMask/DataSetBordesAutomatico/Numpys/EspacioLatente60180/Espaciolatente.npy")
+x00 = np.load("/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/dataSetAutoencoder/DatasetAutoencoder/DataSetLatentSpace/Npy/Dataset60x180v2.npy")
 
 
 print ("00",x00.shape)
@@ -210,17 +210,17 @@ with strategy.scope():
         print("Test dataset shapes: {}, {}".format(x_test.shape, y_test.shape))
 
         #crear carpeta
-        if not os.path.exists("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte):
-            os.makedirs("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte)
+        if not os.path.exists("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte):
+            os.makedirs("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte)
             
 
         #DroughtDatasetMask/dataset/BordesNuevos/61_180Part0_1
-        np.save("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy", x_test)
-        np.save("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy", y_test)
-        np.save("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_train_mask.npy", x_train)
-        np.save("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_train_mask.npy", y_train)
-        np.save("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_validation_mask.npy", x_validation)
-        np.save("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_validation_mask.npy", y_validation)
+        np.save("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy", x_test)
+        np.save("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy", y_test)
+        np.save("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_train_mask.npy", x_train)
+        np.save("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_train_mask.npy", y_train)
+        np.save("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_validation_mask.npy", x_validation)
+        np.save("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_validation_mask.npy", y_validation)
 
         #cargar datos    
         #x_test = np.load("DroughtDatasetMask/dataset/BordesNuevos/61_180"+parte+"/x_test_mask.npy")
@@ -232,7 +232,7 @@ with strategy.scope():
 
 
         # Define the path where you want to save the log file
-        log_file_path = "DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+ str(rows)+"_"+str(cols)+parte+"/InfoConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".txt"
+        log_file_path = "DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+ str(rows)+"_"+str(cols)+parte+"/InfoConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".txt"
 
         # Save the original stdout so we can restore it later
         original_stdout = sys.stdout
@@ -254,7 +254,7 @@ with strategy.scope():
         early_stopping = keras.callbacks.EarlyStopping(monitor= "val_loss", patience= 6, restore_best_weights= True)
         reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor= "val_loss", patience= 6)
         model_checkpoint = keras.callbacks.ModelCheckpoint(
-            filepath= "DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/ConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".h5",
+            filepath= "DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/ConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".h5",
             monitor= "val_loss",
             save_best_only= True,
             mode= "min"
@@ -275,7 +275,7 @@ with strategy.scope():
 
         #Guardar el modelo
         
-        model.save("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/ConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".h5")
+        model.save("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/ConvLSTM2D_Mask"+str(rows)+"_"+str(cols)+".h5")
     
 
         print (f"lengeth x_test: {len(x_test)}")
@@ -302,7 +302,7 @@ with strategy.scope():
         res_forecast = add_last(x_test_new, preds4[:])
         print("PREDSS",res_forecast.shape)
 
-        np.save("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy", res_forecast)  #Guardar el vector de predicciones
+        np.save("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy", res_forecast)  #Guardar el vector de predicciones
 
         print("Res_forecast" , res_forecast.shape)
 
@@ -322,7 +322,7 @@ with strategy.scope():
     
 
     # Define la ruta de la carpeta
-    folder_path = "DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta
+    folder_path = "DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta
     # Lista los archivos en el directorio
     files = os.listdir(folder_path)
     print(files)
@@ -358,13 +358,13 @@ with strategy.scope():
                 
             #rows = 61
             #cols = 180
-            x_test = np.load("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
-            y_test = np.load("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
+            x_test = np.load("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/x_test_mask.npy")
+            y_test = np.load("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/y_test_mask.npy")
             rows = len(x_test[0,0])
             cols= len(x_test[0,0,0])
-            #DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/v1/41_120Part0_0/PredictionsConvolutionLSTM_forecast_41_120_Part0_0_w21.npy
-            #DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/v1/41_120_Part0_0/PredictionsConvolutionLSTM_forecast_41_120_Part0_0_w21.npy
-            data = np.load("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
+            #DroughtDatasetMask/ResultadosEspacioLatente/v1/41_120Part0_0/PredictionsConvolutionLSTM_forecast_41_120_Part0_0_w21.npy
+            #DroughtDatasetMask/ResultadosEspacioLatente/v1/41_120_Part0_0/PredictionsConvolutionLSTM_forecast_41_120_Part0_0_w21.npy
+            data = np.load("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/PredictionsConvolutionLSTM_forecast_"+str(rows)+"_"+str(cols)+"_"+parte+"_w"+str(window)+".npy")
         
 
             
@@ -504,7 +504,7 @@ with strategy.scope():
         offset = df_cm_f.shape[1] + 2
 
         # Crear un escritor de Excel
-        with pd.ExcelWriter("DroughtDatasetMask/dataset/ResultadosEspacioLatenteV1/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/combined_confusion_matrices.xlsx") as writer:
+        with pd.ExcelWriter("DroughtDatasetMask/ResultadosEspacioLatente/"+carpeta+"/"+str(rows)+"_"+str(cols)+parte+"/combined_confusion_matrices.xlsx") as writer:
             # Escribir la primera matriz en la hoja de cálculo empezando en la primera columna
             df_cm_f.to_excel(writer, startcol=0, index=True)
 
