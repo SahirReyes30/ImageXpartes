@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
 import cv2
+import io
 
 
 
@@ -223,9 +224,15 @@ def setup_strategy():
     print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
     return strategy
 
-def load_data():
-    x_load = np.load("/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/dataSetAutoencoder/DatasetAutoencoder/DataSetLatentSpace/Npy/Balanced/V1/Dataset120x360GreysNewCategories.npy")
-    return x_load / 255
+def load_data(ruta):
+    #si es un arichivo zip se puede usar np.load(io.BytesIO(archivo_zip.read(nombre_archivo)))
+    if ruta.endswith(".npy"):
+        data = np.load(ruta)
+    elif ruta.endswith(".zip"):
+        with open(ruta, 'rb') as archivo_zip:
+            data = np.load(io.BytesIO(archivo_zip.read(ruta)))
+    ##x_load = np.load("/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/dataSetAutoencoder/DatasetAutoencoder/DataSetLatentSpace/Npy/Balanced/V1/Dataset120x360GreysNewCategories.npy")
+    return data / 255
 
 def split_data(x):
     x_train = x[:int(len(x) * .7)]
