@@ -273,6 +273,7 @@ with strategy.scope():
         m = keras.layers.ConvLSTM2D(16, (3,3), padding= "same", activation= "relu")(m)
         m = keras.layers.Conv2D(channels, (3,3), activation= "sigmoid", padding= "same")(m)
         model = keras.models.Model(inp, m)
+        
         model.compile(loss= "binary_crossentropy", optimizer= "Adam")
         print(model.summary())
         #Callbacks
