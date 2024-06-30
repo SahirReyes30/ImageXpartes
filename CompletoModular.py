@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import threading
 import numpy as np
@@ -315,6 +316,7 @@ def save_encoder_decoder(encoder, decoder, linkDeGuardado):
 
 def load_and_normalize_data(path):
     data = np.load(path)
+    data = data.astype("float32")
     return data / 255
 
 def save_latent_space(encoder, data, linkDeGuardado):
@@ -478,7 +480,13 @@ def save_confusion_matrices_to_excel(cm_f, cm_n, linkDeGuardado):
         df_cm_n.to_excel(writer, startcol=offset, index=True)
 
 def define_rows_cols(data):
-    if len(data.shape) == 4:
+    if len(data.shape) == 3:
+        rows = data.shape[1]
+        print("rows: ", rows)
+        cols = data.shape[2]
+        print("cols: ", cols)
+        return rows, cols
+    elif len(data.shape) == 4:
         rows = data.shape[1]
         print("rows: ", rows)
         cols = data.shape[2]
@@ -684,7 +692,7 @@ def create_npy_from_images(folder_path, folder_save):
         #print(file)
         #pasar a escala de grises
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        print(image.shape)
+        #print(image.shape)
         # Add the image to the list
         images.append(image)
 
@@ -692,14 +700,17 @@ def create_npy_from_images(folder_path, folder_save):
     images_array = np.array(images)
 
     # Print the shape of the numpy array
-    print(images_array.shape)
+    #print(images_array.shape)
 
     #from folder_path extract the name of the folder
     folder_name = folder_path.split('/')[-1]
-    print(folder_name)
+    print("folder_name",folder_name)
+    folder_name = folder_name.replace("\\", "_")
 
+    if not os.path.exists(folder_save+'/npy/'):
+        os.makedirs(folder_save+'/npy/')
     # Save the numpy array to a file
-    #np.save(folder_save+'/DroughtDatasetMask1x1.npy', images_array)
+    np.save(folder_save+'/npy/'+folder_name+'.npy', images_array)
 
 def paso_1(folder_path, linkDeGuardado):
     
@@ -710,6 +721,7 @@ def paso_1(folder_path, linkDeGuardado):
     print("\nPaso 1\n")
     #carga de data
     #x_load = load_data()
+
     fragment_picture(folder_path=folder_path, folder_save=linkDeGuardado)
     #print("x_load: ", x_load.shape)
     #print("x_load min: ", x_load.min())
@@ -730,14 +742,21 @@ def paso_1(folder_path, linkDeGuardado):
 
     return paso_1_duration
 
-def process_directory(directory):
+def get_folder_paths(directory):
+    folder_paths = []
+    for root, dirs, files in os.walk(directory):
+        for dir in dirs:
+            folder_path = os.path.join(root, dir)
+            folder_paths.append(folder_path)
+    return folder_paths  
+
+def get_archive_paths(directory):
+    archive_paths = []
     for root, dirs, files in os.walk(directory):
         for file in files:
-            if file.endswith(('png', 'jpg', 'jpeg', 'bmp', 'gif')):  # Archivos de imagen comunes
-                file_path = os.path.join(root, file)
-                print(f"Procesando: {file_path}")
-                #process_image(file_path)
-                #print(f"Procesado: {file_path}")
+            archive_path = os.path.join(root, file)
+            archive_paths.append(archive_path)
+    return archive_paths
 
 def paso_2(folder_path, linkDeGuardado):
     """
@@ -749,9 +768,12 @@ def paso_2(folder_path, linkDeGuardado):
     #latent = save_latent_space(encoder, x_load, linkDeGuardado)
     # Set the path to the folder containing the images
     #recorrer carpetas 
-    process_directory(folder_path)
-            
-            #create_npy_from_images(folder_path, linkDeGuardado)
+    folder_paths = get_folder_paths(folder_path)
+    for folder_path in folder_paths:
+        #print(folder_path)
+        if ("crop") in folder_path:
+            create_npy_from_images(folder_path, linkDeGuardado)
+        #create_npy_from_images(folder_path, linkDeGuardado)
         
                 
         #create_npy_from_images(folder_path, linkDeGuardado)
@@ -763,36 +785,83 @@ def paso_2(folder_path, linkDeGuardado):
     paso_2_duration = time.time() - paso_2_start_time
     return paso_2_duration
 
-def paso_3( latent, window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado):
+def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado, categories):
     """
     #Paso 3 Estimar 
     """
     paso_3_start_time = time.time()
     print("\nPaso 3 \n")
-    #agrupar en ventanas
-    x_2 = agroup_window(latent, window)
 
-    #definir rows y cols
-    rows, cols = define_rows_cols(latent)
+    print("linkDeGuardado npy", linkDeGuardado+'/npy/')
+    #carga de data
+    data_paths = get_archive_paths(linkDeGuardado+'/npy')
 
-    #separar data para entrenar ConvLSTM
-    x_train, x_validation, x_test = split_data(x_2)
-        
-    #reshape de data
-    x_train = reshape_data(x_train, window, rows, cols, channels)
-    x_validation = reshape_data(x_validation, window, rows, cols, channels)
-    x_test = reshape_data(x_test, window, rows, cols, channels)
+    for data_path in data_paths:
+        if ("crop") in data_path:
+            estimate_crop_start_time = time.time()
 
-    #crear desplazamientos para convLSTM
-    x_train, y_train = create_shifted_frames_2(x_train)
-    x_validation, y_validation = create_shifted_frames_2(x_validation)
-    x_test, y_test = create_shifted_frames_2(x_test)
+            x = load_and_normalize_data(data_path)
+            #x = np.load(data_path)
+            ##print("Parte", parte)
 
-    #entrenar 
-    model = build_and_train_conv_lstm(x_train, y_train, x_validation, y_validation, linkDeGuardado, rows, cols, channels , bach_size, epochs, patience)
-    res_forescast = evaluate_and_forecast(model, x_test, y_test, linkDeGuardado )
+            #print("x", x.shape)
+            #print("x", x.dtype)
+            #print("x", x.min())
+            #print("x", x.max())
+
+            #inicio
+            x = np.array([gray_quantized(i, np.array(categories)) for i in x])
+            #colors_greys = get_colors(x[1168])
+            #print(f"Colores antes{colors_greys}")
+            #print(x.shape)
+
+            x_greys = np.array([recolor_greys_image_optimized(img, categories) for img in x])
+            x = x_greys.astype('float32') / 255
+            print(f"colores categoricos {get_colors(x[1168])}")
+            print(("x min", x.min()))
+            print(("x max", x.max()))
+
+            #agrupar en ventanas
+            x_2 = agroup_window(x, window)
+
+            #definir rows y cols
+            rows, cols = define_rows_cols(x)
+            
+            #separar data para entrenar ConvLSTM
+            x_train, x_validation, x_test = split_data(x_2)
+
+            #reshape de data
+            x_train = reshape_data(x_train, window, rows, cols, channels)
+            x_validation = reshape_data(x_validation, window, rows, cols, channels)
+            x_test = reshape_data(x_test, window, rows, cols, channels)
+
+            #crear desplazamientos para convLSTM
+            x_train, y_train = create_shifted_frames_2(x_train)
+            x_validation, y_validation = create_shifted_frames_2(x_validation)
+            x_test, y_test = create_shifted_frames_2(x_test)
+
+            #entrenar 
+            model = build_and_train_conv_lstm(x_train, y_train, x_validation, y_validation, linkDeGuardado, rows, cols, channels , bach_size, epochs, patience)
+            res_forescast = evaluate_and_forecast(model, x_test, y_test, linkDeGuardado )
+            
+            path_name = data_path.split('/')[-1]
+            path_name = path_name.split('.')[0]
+            print("path_name", path_name)
+
+            #guardar resultados
+            #np.save(linkDeGuardado + "/PredictionsConvolutionLSTM_forecast.npy", res_forescast)
+            estimate_crop_duration = time.time() - estimate_crop_start_time
+            print(f"Estimación de crop {path_name} completada en {estimate_crop_duration:.2f} segundos.")
+
+            #guardar el tiempo de estimación de crop
+            with open(os.path.join(linkDeGuardado, "time_estimation_crop.txt"), "a") as f:
+                f.write(f"Estimación de crop {path_name} completada en {estimate_crop_duration:.2f} segundos.\n")
+            
+            sys.exit()
+            
+    
     paso_3_duration = time.time() - paso_3_start_time
-    return res_forescast, paso_3_duration
+    return paso_3_duration
 
 def paso_4( decoder, res_forescast, linkDeGuardado, classesBalanced, horizon):
     """
@@ -894,12 +963,12 @@ def main():
 
     with strategy.scope():
         
-        #paso_1_duration = paso_1(folder_path="/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
+        #paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
         
 
-        paso_2_duration = paso_2( folder_path= "DroughtDatasetMask/Parte1/Recorte/PruebaModulos1",linkDeGuardado=linkDeGuardado)
+        #paso_2_duration = paso_2( folder_path= "DroughtDatasetMask/Parte1/Recorte/PruebaModulos1",linkDeGuardado=linkDeGuardado)
 
-        #res_forescast , paso_3_duration = paso_3(latent, window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado)
+        paso_3_duration = paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado , classesBalanced)
 
         #decoded_data, paso_4_duration = paso_4(decoder, res_forescast, linkDeGuardado, classesBalanced, horizon)
 
@@ -907,7 +976,7 @@ def main():
         
         training_duration = end_time_monitoring(start_total_time)
         #time_monitoring(linkDeGuardado, training_duration, paso_1_duration, paso_2_duration, paso_3_duration, paso_4_duration, paso_5_duration)
-        stop_monitoring_resources()
+        #stop_monitoring_resources()
         
 
 if __name__ == "__main__":
