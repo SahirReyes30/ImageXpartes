@@ -10,6 +10,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
+import cv2
 
 
 
@@ -559,48 +560,205 @@ def end_time_monitoring(start_time):
     print(f"\nTraining completed in {training_duration:.2f} seconds.")
     return training_duration
 
-def paso_1(input_shape, bach_size, epochs, learning_rate, patience, linkDeGuardado):
+
+def crop_and_save(image, x, y, width, height, destination_folder, filename):
+    cropped_image = image[y:y+height, x:x+width]
+    cv2.imwrite(os.path.join(destination_folder, filename), cropped_image)
+
+def fragment_picture(folder_path, folder_save):
+
+    # Ruta al directorio con imágenes originales
+    #folder_path = 'DroughtDatasetMask/ActualizacionDataSetMani/imagenesMak1'
+    folder_path = folder_path
+    image_files = [f for f in os.listdir(folder_path) if f.endswith('.jpg') or f.endswith('.png')]
+
+    # Ruta al directorio donde se guardarán las imágenes recortadas
+    #folder_save = 'DroughtDatasetMask/DataSetBordesAutomatico/Prueba1'
+    folder_save = folder_save
+
+    # Define the cropping dimensions for each size
+    """
+    #sizes originales de 122x360
+    sizes = {
+        '1X1': [(0, 0, 360, 122)
+                ],
+        '2X2': [(0, 0, 180, 61), (170, 0, 190, 61), 
+                (0, 51, 180, 71), (170, 51, 190, 71)
+                ],
+        '3X3': [(0, 0, 120, 41), (110, 0, 130, 41), (230, 0, 130, 41), 
+                (0, 31, 120, 51), (110, 31, 130, 51), (230, 31, 130, 51), 
+                (0, 71, 120, 51), (110, 71, 130, 51), (230, 71, 130, 51)
+                ],
+        '4X4': [(0, 0, 90, 31), (80, 0, 100, 31), (170, 0, 100, 31), (260, 0, 100, 31), 
+                (0, 21, 90, 41), (80, 21, 100, 41), (170, 21, 100, 41), (260, 21, 100, 41), 
+                (0, 51, 90, 41), (80, 51, 100, 41), (170, 51, 100, 41), (260, 51, 100, 41), 
+                (0, 81, 90, 41), (80, 81, 100, 41), (170, 81, 100, 41), (260, 81, 100, 41)]
+    }
+    """
+    #sizes hechas a mano para 120x360
+    sizes = {
+        '1X1': [(0, 0, 360, 120)],
+        '2X2': [(0,  0, 180, 60), (170,  0, 190, 60), 
+                (0, 50, 180, 70), (170, 50, 190, 70)
+                ],
+        '3X3': [(0,  0, 120, 40), (110,  0, 130, 40), (230,  0, 130, 40), 
+                (0, 30, 120, 50), (110, 30, 130, 50), (230, 30, 130, 50), 
+                (0, 70, 120, 50), (110, 70, 130, 50), (230, 70, 130, 50)
+                ],
+        '4X4': [(0,  0, 90, 30), (80,  0, 100, 30), (170,  0, 100, 30), (260,  0, 100, 30), 
+                (0, 20, 90, 40), (80, 20, 100, 40), (170, 20, 100, 40), (260, 20, 100, 40), 
+                (0, 50, 90, 40), (80, 50, 100, 40), (170, 50, 100, 40), (260, 50, 100, 40), 
+                (0, 80, 90, 40), (80, 80, 100, 40), (170, 80, 100, 40), (260, 80, 100, 40)]
+    }
+    """
+    sizes = {
+        '1X1': [(0, 0, 360, 120)],  # La imagen completa
+        '2X2': [
+            (0, 0, 180, 60), (180, 0, 370, 60),  # Primera fila
+            (0, 60, 180, 130), (180, 60, 370, 130)  # Segunda fila
+        ],
+        '3X3': [
+            (0, 0, 120, 40), (120, 0, 250, 40), (250, 0, 380, 40),  # Primera fila
+            (0, 40, 120, 90), (120, 40, 250, 90), (250, 40, 380, 90),  # Segunda fila
+            (0, 90, 120, 140), (120, 90, 250, 140), (250, 90, 380, 140)  # Tercera fila
+        ],
+        '4X4': [
+            (0, 0, 90, 30), (90, 0, 190, 30), (190, 0, 290, 30), (290, 0, 390, 30),  # Primera fila
+            (0, 30, 90, 70), (90, 30, 190, 70), (190, 30, 290, 70), (290, 30, 390, 70),  # Segunda fila
+            (0, 70, 90, 110), (90, 70, 190, 110), (190, 70, 290, 110), (290, 70, 390, 110),  # Tercera fila
+            (0, 110, 90, 150), (90, 110, 190, 150), (190, 110, 290, 150), (290, 110, 390, 150)  # Cuarta fila
+        ]
+    }
+    """
+
+
+
+    # Primero recorrer las dimensiones de recorte
+    for size, dimensions in sizes.items():
+        size_folder = os.path.join(folder_save, size)
+        os.makedirs(size_folder, exist_ok=True)
+        print (f"size_folder, {size_folder}")
+        # Dentro de cada dimensión, recorrer las imágenes
+        for i, (x, y, width, height) in enumerate(dimensions):
+            for file in image_files:
+                image_path = os.path.join(folder_path, file)
+                image = cv2.imread(image_path)
+
+                filename = os.path.splitext(file)[0]
+                cropped_filename = f"{filename}_{size}_{i}.jpg"
+
+
+                crop_folder = os.path.join(size_folder, f"crop_{i}")
+
+                #print (f"crop_folder, {crop_folder}")
+
+                if not os.path.exists(crop_folder):
+                    os.makedirs(crop_folder)
+
+                crop_and_save(image, x, y, width, height, crop_folder, cropped_filename)
+
+
+
+def create_npy_from_images(folder_path, folder_save):
+    # Set the path to the folder containing the images
+    folder_path = folder_path
+
+    # Get a sorted list of all the image file names in the folder
+    image_files = sorted([f for f in os.listdir(folder_path) if f.endswith('.jpg') or f.endswith('.png')])
+
+    # Create an empty list to hold the images
+    images = []
+
+    # Loop through the sorted image files and add each image to the list
+    for file in image_files:
+        # Load the image using OpenCV
+        image_path = os.path.join(folder_path, file)
+        image = cv2.imread(image_path)
+        #print(file)
+        #pasar a escala de grises
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        print(image.shape)
+        # Add the image to the list
+        images.append(image)
+
+    # Convert the list of images to a numpy array
+    images_array = np.array(images)
+
+    # Print the shape of the numpy array
+    print(images_array.shape)
+
+    #from folder_path extract the name of the folder
+    folder_name = folder_path.split('/')[-1]
+    print(folder_name)
+
+    # Save the numpy array to a file
+    #np.save(folder_save+'/DroughtDatasetMask1x1.npy', images_array)
+
+def paso_1(folder_path, linkDeGuardado):
     
     """
-    #Paso 1
+    #Paso 1 cargar data y fragmentar data
     """
     paso_1_start_time = time.time()
     print("\nPaso 1\n")
     #carga de data
-    x_load = load_data()
-    print("x_load: ", x_load.shape)
-    print("x_load min: ", x_load.min())
-    print("x_load max: ", x_load.max())
+    #x_load = load_data()
+    fragment_picture(folder_path=folder_path, folder_save=linkDeGuardado)
+    #print("x_load: ", x_load.shape)
+    #print("x_load min: ", x_load.min())
+    #print("x_load max: ", x_load.max())
     #separacion de data
-    x_train, x_validation, x_test = split_data(x_load)
-    print("x_train: ", x_train.shape)
-    print("x_validation: ", x_validation.shape)
-    print("x_test: ", x_test.shape)
+    #x_train, x_validation, x_test = split_data(x_load)
+    #print("x_train: ", x_train.shape)
+    #print("x_validation: ", x_validation.shape)
+    #print("x_test: ", x_test.shape)
     #Arquitectura autoencoder
-    encoder, decoder, autoencoder = build_autoencoder(input_shape)
+    #encoder, decoder, autoencoder = build_autoencoder(input_shape)
     #entrenamiento autoencoder
-    autoencoder = train_autoencoder(autoencoder, x_train, x_validation, linkDeGuardado, bach_size, epochs, learning_rate, patience)
+    #autoencoder = train_autoencoder(autoencoder, x_train, x_validation, linkDeGuardado, bach_size, epochs, learning_rate, patience)
     #guardar encoder y decoder
-    save_encoder_decoder(encoder, decoder, linkDeGuardado)
+    #save_encoder_decoder(encoder, decoder, linkDeGuardado)
     paso_1_duration = time.time() - paso_1_start_time
     print(f"\nPaso 1 completed in {paso_1_duration:.2f} seconds.")
 
-    return encoder, decoder ,x_load, paso_1_duration
+    return paso_1_duration
 
-def paso_2(encoder, x_load, linkDeGuardado):
+def process_directory(directory):
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(('png', 'jpg', 'jpeg', 'bmp', 'gif')):  # Archivos de imagen comunes
+                file_path = os.path.join(root, file)
+                print(f"Procesando: {file_path}")
+                #process_image(file_path)
+                #print(f"Procesado: {file_path}")
+
+def paso_2(folder_path, linkDeGuardado):
     """
-    #Paso 2
+    #Paso 2 crear numpys de data
     """
     paso_2_start_time = time.time()
-    print("\n Paso 2 \n")
-    #guardar espacio latente
-    latent = save_latent_space(encoder, x_load, linkDeGuardado)
+    #print("\n Paso 2 \n")
+    ##guardar espacio latente
+    #latent = save_latent_space(encoder, x_load, linkDeGuardado)
+    # Set the path to the folder containing the images
+    #recorrer carpetas 
+    process_directory(folder_path)
+            
+            #create_npy_from_images(folder_path, linkDeGuardado)
+        
+                
+        #create_npy_from_images(folder_path, linkDeGuardado)
+
+    
+    
+
+
     paso_2_duration = time.time() - paso_2_start_time
-    return latent, paso_2_duration
+    return paso_2_duration
 
 def paso_3( latent, window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado):
     """
-    #Paso 3
+    #Paso 3 Estimar 
     """
     paso_3_start_time = time.time()
     print("\nPaso 3 \n")
@@ -703,11 +861,11 @@ def paso_5( decoded_data, window, classesBalanced, horizon, linkDeGuardado, chan
     return paso_5_duration
 
 def main():
-    linkDeGuardado = "Resultados/ResultadoCompletoNewCategories/"
+    linkDeGuardado = "DroughtDatasetMask/Parte1/Recorte/"
     carpeta = get_user_input()
     linkDeGuardado = create_folder_if_not_exists(linkDeGuardado, carpeta)
     start_total_time = start_time_monitoring()
-    start_monitoring(monitor_resources)
+    #start_monitoring(monitor_resources)
 
     strategy = setup_strategy()
 
@@ -729,18 +887,19 @@ def main():
 
     with strategy.scope():
         
-        encoder, decoder , x_load, paso_1_duration = paso_1(input_shape, bach_size, epochs, learning_rate, patience, linkDeGuardado)
+        #paso_1_duration = paso_1(folder_path="/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
         
-        latent , paso_2_duration = paso_2(encoder, x_load, linkDeGuardado)
 
-        res_forescast , paso_3_duration = paso_3(latent, window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado)
+        paso_2_duration = paso_2( folder_path= "DroughtDatasetMask/Parte1/Recorte/PruebaModulos1",linkDeGuardado=linkDeGuardado)
 
-        decoded_data, paso_4_duration = paso_4(decoder, res_forescast, linkDeGuardado, classesBalanced, horizon)
+        #res_forescast , paso_3_duration = paso_3(latent, window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado)
 
-        paso_5_duration = paso_5(decoded_data, window, classesBalanced, horizon, linkDeGuardado, channels)
+        #decoded_data, paso_4_duration = paso_4(decoder, res_forescast, linkDeGuardado, classesBalanced, horizon)
+
+        #paso_5_duration = paso_5(decoded_data, window, classesBalanced, horizon, linkDeGuardado, channels)
         
         training_duration = end_time_monitoring(start_total_time)
-        time_monitoring(linkDeGuardado, training_duration, paso_1_duration, paso_2_duration, paso_3_duration, paso_4_duration, paso_5_duration)
+        #time_monitoring(linkDeGuardado, training_duration, paso_1_duration, paso_2_duration, paso_3_duration, paso_4_duration, paso_5_duration)
         stop_monitoring_resources()
         
 
