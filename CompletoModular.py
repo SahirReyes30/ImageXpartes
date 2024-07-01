@@ -785,6 +785,10 @@ def paso_2(folder_path, linkDeGuardado):
     paso_2_duration = time.time() - paso_2_start_time
     return paso_2_duration
 
+def save_xtest_ytest(x_test, y_test, linkDeGuardado):
+    np.save(linkDeGuardado + "/x_test.npy", x_test)
+    np.save(linkDeGuardado + "/y_test.npy", y_test)
+
 def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado, categories):
     """
     #Paso 3 Estimar 
@@ -798,6 +802,24 @@ def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGua
 
     for data_path in data_paths:
         if ("crop") in data_path:
+            if ("2X2") in data_path:
+                linkDeGuardado = linkDeGuardado + "/Predicts/2X2"
+                create_folder_if_not_exists(linkDeGuardado + "/Predicts/2X2")
+                break
+            elif ("3X3") in data_path:
+                linkDeGuardado = linkDeGuardado + "/Predicts/3X3"
+                create_folder_if_not_exists(linkDeGuardado + "/Predicts/3X3")
+                break
+            elif ("4X4") in data_path:
+                linkDeGuardado = linkDeGuardado + "/Predicts/4X4"
+                create_folder_if_not_exists(linkDeGuardado + "/Predicts/4X4")
+                break
+            else:
+                linkDeGuardado = linkDeGuardado + "/Predicts/1X1"
+                create_folder_if_not_exists(linkDeGuardado + "/Predicts/1X1")
+            
+
+
             estimate_crop_start_time = time.time()
 
             x = load_and_normalize_data(data_path)
@@ -840,6 +862,7 @@ def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGua
             x_validation, y_validation = create_shifted_frames_2(x_validation)
             x_test, y_test = create_shifted_frames_2(x_test)
 
+            save_xtest_ytest(x_test, y_test, linkDeGuardado)
             #entrenar 
             model = build_and_train_conv_lstm(x_train, y_train, x_validation, y_validation, linkDeGuardado, rows, cols, channels , bach_size, epochs, patience)
             res_forescast = evaluate_and_forecast(model, x_test, y_test, linkDeGuardado )
@@ -865,12 +888,34 @@ def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGua
 
 def paso_4( decoder, res_forescast, linkDeGuardado, classesBalanced, horizon):
     """
-    #Paso 4
+    #Paso 4 Fusion de datos
     """
     paso_4_start_time = time.time()
     print("\n Paso 4\n ")
-    decoded_data = decode_predictions(decoder, res_forescast, linkDeGuardado)
-    save_img("decoded_data",decoded_data, linkDeGuardado, classesBalanced, horizon)
+    #carga de data
+    archive_path = get_archive_paths(linkDeGuardado + "/Predicts")
+    for data_path in archive_path:
+        if ("2X2") in data_path:
+            linkDeGuardado = linkDeGuardado + "/Predicts/2X2"
+            create_folder_if_not_exists(linkDeGuardado + "/Predicts/2X2")
+        elif ("3X3") in data_path:
+            linkDeGuardado = linkDeGuardado + "/Predicts/3X3"
+            create_folder_if_not_exists(linkDeGuardado + "/Predicts/3X3")
+        elif ("4X4") in data_path:
+            linkDeGuardado = linkDeGuardado + "/Predicts/4X4"
+            create_folder_if_not_exists(linkDeGuardado + "/Predicts/4X4")
+        else:
+            linkDeGuardado = linkDeGuardado + "/Predicts/1X1"
+            create_folder_if_not_exists(linkDeGuardado + "/Predicts/1X1")
+        
+        
+
+
+            
+
+
+    ##decoded_data = decode_predictions(decoder, res_forescast, linkDeGuardado)
+    #save_img("decoded_data",decoded_data, linkDeGuardado, classesBalanced, horizon)
     paso_4_duration = time.time() - paso_4_start_time
     return decoded_data, paso_4_duration
 
@@ -880,61 +925,71 @@ def paso_5( decoded_data, window, classesBalanced, horizon, linkDeGuardado, chan
     """
     paso_5_start_time = time.time()
     print("\nPaso 5\n")
+
+    #linkDeGuardado = linkDeGuardado + "/Predicts/"
+
     #carga de data
-    x_load = load_data()
-    print("x_load: ", x_load.shape)
+    data_paths = get_archive_paths(linkDeGuardado+'/Predicts')
 
-    x_2 = agroup_window(x_load, window)
-    #separacion de data
-    x_train, x_validation, x_test = split_data(x_2)
-    print("x_train: ", x_train.shape)
-    print("x_validation: ", x_validation.shape)
-    print("x_test: ", x_test.shape)
-    
-    rows, cols = define_rows_cols(decoded_data)
-
-    #reshape de data
-    x_train = reshape_data(x_train, window, rows, cols, channels)
-    print("x_train: ", x_train.shape)
-    x_validation = reshape_data(x_validation, window, rows, cols, channels)
-    print("x_validation: ", x_validation.shape)
-    x_test = reshape_data(x_test, window, rows, cols, channels)
-    print("x_test: ", x_test.shape)
-
-    #crear desplazamientos para convLSTM
-    x_train, y_train = create_shifted_frames_2(x_train)
-    x_validation, y_validation = create_shifted_frames_2(x_validation)
-    x_test, y_test = create_shifted_frames_2(x_test)
+    for data_path in data_paths:
         
-    print("ytest", y_test.shape)
 
-    y_test = get_cubes(y_test, horizon)
-        
-    naive, decoded_data = displaceData(x_test, decoded_data)
-    n_real, naive = naive_window(naive, horizon)
-    new_data = categorize_image(decoded_data, classesBalanced)
-    print("valores unicos de new_data: ", np.unique(new_data))
-    print("valores unicos de y_test: ", np.unique(y_test))
-    print("valores unicos de naive: ", np.unique(naive))
 
-    save_img("new data",new_data, linkDeGuardado, classesBalanced, horizon)
-    save_img("y_test",y_test, linkDeGuardado, classesBalanced, horizon)
-    save_img("naive",naive, linkDeGuardado, classesBalanced, horizon)
+        #carga de data
+        x_load = load_data()
+        print("x_load: ", x_load.shape)
 
-    print("new_data: ", new_data.shape)
-    print("y_test: ", y_test.shape)
-    print("naive: ", naive.shape)
-    print("classesBalanced: ", classesBalanced)
-    print("rows: ", rows)
-    print("cols: ", cols)
-    print("horizon: ", horizon)
-    print("len(classesBalanced)", len(classesBalanced))
+        x_2 = agroup_window(x_load, window)
+        #separacion de data
+        x_train, x_validation, x_test = split_data(x_2)
+        print("x_train: ", x_train.shape)
+        print("x_validation: ", x_validation.shape)
+        print("x_test: ", x_test.shape)
 
-        
-    cm_f, cm_n = calculate_confusion_matrix(new_data, y_test, naive, classesBalanced, rows, cols, horizon)
-    save_confusion_matrices_to_excel(cm_f, cm_n, linkDeGuardado)
-    paso_5_duration = time.time() - paso_5_start_time
-    return paso_5_duration
+        rows, cols = define_rows_cols(decoded_data)
+
+        #reshape de data
+        x_train = reshape_data(x_train, window, rows, cols, channels)
+        print("x_train: ", x_train.shape)
+        x_validation = reshape_data(x_validation, window, rows, cols, channels)
+        print("x_validation: ", x_validation.shape)
+        x_test = reshape_data(x_test, window, rows, cols, channels)
+        print("x_test: ", x_test.shape)
+
+        #crear desplazamientos para convLSTM
+        x_train, y_train = create_shifted_frames_2(x_train)
+        x_validation, y_validation = create_shifted_frames_2(x_validation)
+        x_test, y_test = create_shifted_frames_2(x_test)
+
+        print("ytest", y_test.shape)
+
+        y_test = get_cubes(y_test, horizon)
+
+        naive, decoded_data = displaceData(x_test, decoded_data)
+        n_real, naive = naive_window(naive, horizon)
+        new_data = categorize_image(decoded_data, classesBalanced)
+        print("valores unicos de new_data: ", np.unique(new_data))
+        print("valores unicos de y_test: ", np.unique(y_test))
+        print("valores unicos de naive: ", np.unique(naive))
+
+        save_img("new data",new_data, linkDeGuardado, classesBalanced, horizon)
+        save_img("y_test",y_test, linkDeGuardado, classesBalanced, horizon)
+        save_img("naive",naive, linkDeGuardado, classesBalanced, horizon)
+
+        print("new_data: ", new_data.shape)
+        print("y_test: ", y_test.shape)
+        print("naive: ", naive.shape)
+        print("classesBalanced: ", classesBalanced)
+        print("rows: ", rows)
+        print("cols: ", cols)
+        print("horizon: ", horizon)
+        print("len(classesBalanced)", len(classesBalanced))
+
+
+        cm_f, cm_n = calculate_confusion_matrix(new_data, y_test, naive, classesBalanced, rows, cols, horizon)
+        save_confusion_matrices_to_excel(cm_f, cm_n, linkDeGuardado)
+        paso_5_duration = time.time() - paso_5_start_time
+        return paso_5_duration
 
 def main():
     linkDeGuardado = "DroughtDatasetMask/Parte1/Recorte/"
