@@ -886,7 +886,91 @@ def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGua
     paso_3_duration = time.time() - paso_3_start_time
     return paso_3_duration
 
-def paso_4( decoder, res_forescast, linkDeGuardado, classesBalanced, horizon):
+def asing_data(data2x2, data3x3, data4x4):
+    data2x2_matrix = [data2x2[:2], data2x2[2:4]]
+    data3x3_matrix = [data3x3[:3], data3x3[3:6], data3x3[6:9]]
+    data4x4_matrix = [data4x4[:4], data4x4[4:8], data4x4[8:12], data4x4[12:16]]
+    return data2x2_matrix, data3x3_matrix, data4x4_matrix
+
+def fusion_data2x2(data2x2_matrix):
+    #fusion de datos
+    data2x2_matrix[0][0] = data2x2_matrix[0][0][:, :, :, :-4, :]
+    data2x2_matrix[0][1] = data2x2_matrix[0][1][:, :, :, 6:, :]
+    data2x2_matrix[1][0] = data2x2_matrix[1][0][:, :, :, :-4, :]
+    data2x2_matrix[1][1] = data2x2_matrix[1][1][:, :, :, 6:, :]
+
+    #concatenar los datos
+    data2x2_0 = np.concatenate((data2x2_matrix[0][0], data2x2_matrix[0][1]), axis=3)
+    data2x2_1 = np.concatenate((data2x2_matrix[1][0], data2x2_matrix[1][1]), axis=3)
+
+    data2x2_0 = data2x2_0[:, :, :-4, :, ]
+    data2x2_1 = data2x2_1[:, :, 6:, :, ]
+
+    data2x2 = np.concatenate((data2x2_0, data2x2_1), axis=2)
+    print("data2x2", data2x2.shape)
+    return data2x2
+
+def fusion_data3x3(data3x3_matrix):
+    #fusion de datos
+    data3x3_matrix[0][0] = data3x3_matrix[0][0][:, :, :, :-4, :]
+    data3x3_matrix[0][1] = data3x3_matrix[0][1][:, :, :, 6:, :]
+    data3x3_matrix[0][2] = data3x3_matrix[0][2][:, :, :, 6:, :]
+    data3x3_matrix[1][0] = data3x3_matrix[1][0][:, :, :, :-4, :]
+    data3x3_matrix[1][1] = data3x3_matrix[1][1][:, :, :, 6:, :]
+    data3x3_matrix[1][2] = data3x3_matrix[1][2][:, :, :, 6:, :]
+    data3x3_matrix[2][0] = data3x3_matrix[2][0][:, :, :, :-4, :]
+    data3x3_matrix[2][1] = data3x3_matrix[2][1][:, :, :, 6:, :]
+    data3x3_matrix[2][2] = data3x3_matrix[2][2][:, :, :, 6:, :]
+
+    #concatenar los datos
+    data3x3_0 = np.concatenate((data3x3_matrix[0][0], data3x3_matrix[0][1], data3x3_matrix[0][2]), axis=3)
+    data3x3_1 = np.concatenate((data3x3_matrix[1][0], data3x3_matrix[1][1], data3x3_matrix[1][2]), axis=3)
+    data3x3_2 = np.concatenate((data3x3_matrix[2][0], data3x3_matrix[2][1], data3x3_matrix[2][2]), axis=3)
+
+    data3x3_0 = data3x3_0[:, :, :-4, :, ]
+    data3x3_1 = data3x3_1[:, :, 6:, :, ]
+    data3x3_2 = data3x3_2[:, :, 6:, :, ]
+
+    data3x3 = np.concatenate((data3x3_0, data3x3_1, data3x3_2), axis=2)
+    print("data3x3", data3x3.shape)
+    return data3x3
+
+def fusion_data4x4(data4x4_matrix):
+    #fusion de datos
+    data4x4_matrix[0][0] = data4x4_matrix[0][0][:, :, :, :-4, :]
+    data4x4_matrix[0][1] = data4x4_matrix[0][1][:, :, :, 6:, :]
+    data4x4_matrix[0][2] = data4x4_matrix[0][2][:, :, :, 6:, :]
+    data4x4_matrix[0][3] = data4x4_matrix[0][3][:, :, :, 6:, :]
+    data4x4_matrix[1][0] = data4x4_matrix[1][0][:, :, :, :-4, :]
+    data4x4_matrix[1][1] = data4x4_matrix[1][1][:, :, :, 6:, :]
+    data4x4_matrix[1][2] = data4x4_matrix[1][2][:, :, :, 6:, :]
+    data4x4_matrix[1][3] = data4x4_matrix[1][3][:, :, :, 6:, :]
+    data4x4_matrix[2][0] = data4x4_matrix[2][0][:, :, :, :-4, :]
+    data4x4_matrix[2][1] = data4x4_matrix[2][1][:, :, :, 6:, :]
+    data4x4_matrix[2][2] = data4x4_matrix[2][2][:, :, :, 6:, :]
+    data4x4_matrix[2][3] = data4x4_matrix[2][3][:, :, :, 6:, :]
+    data4x4_matrix[3][0] = data4x4_matrix[3][0][:, :, :, :-4, :]
+    data4x4_matrix[3][1] = data4x4_matrix[3][1][:, :, :, 6:, :]
+    data4x4_matrix[3][2] = data4x4_matrix[3][2][:, :, :, 6:, :]
+    data4x4_matrix[3][3] = data4x4_matrix[3][3][:, :, :, 6:, :]
+
+    #concatenar los datos
+    data4x4_0 = np.concatenate((data4x4_matrix[0][0], data4x4_matrix[0][1], data4x4_matrix[0][2], data4x4_matrix[0][3]), axis=3)
+    data4x4_1 = np.concatenate((data4x4_matrix[1][0], data4x4_matrix[1][1], data4x4_matrix[1][2], data4x4_matrix[1][3]), axis=3)
+    data4x4_2 = np.concatenate((data4x4_matrix[2][0], data4x4_matrix[2][1], data4x4_matrix[2][2], data4x4_matrix[2][3]), axis=3)
+    data4x4_3 = np.concatenate((data4x4_matrix[3][0], data4x4_matrix[3][1], data4x4_matrix[3][2], data4x4_matrix[3][3]), axis=3)
+
+    data4x4_0 = data4x4_0[:, :, :-4, :, ]
+    data4x4_1 = data4x4_1[:, :, 6:, :, ]
+    data4x4_2 = data4x4_2[:, :, 6:, :, ]
+    data4x4_3 = data4x4_3[:, :, 6:, :, ]
+
+    data4x4 = np.concatenate((data4x4_0, data4x4_1, data4x4_2, data4x4_3), axis=2)
+    print("data4x4", data4x4.shape)
+    return data4x4
+
+
+def paso_4( linkDeGuardado):
     """
     #Paso 4 Fusion de datos
     """
@@ -898,17 +982,56 @@ def paso_4( decoder, res_forescast, linkDeGuardado, classesBalanced, horizon):
         if ("2X2") in data_path:
             linkDeGuardado = linkDeGuardado + "/Predicts/2X2"
             create_folder_if_not_exists(linkDeGuardado + "/Predicts/2X2")
+            data2x2 = []
+            data = np.load(data_path)
+            data2x2.append(data)
+            break
         elif ("3X3") in data_path:
             linkDeGuardado = linkDeGuardado + "/Predicts/3X3"
             create_folder_if_not_exists(linkDeGuardado + "/Predicts/3X3")
+            data3x3 = []
+            data = np.load(data_path)
+            data3x3.append(data)
+            break
         elif ("4X4") in data_path:
             linkDeGuardado = linkDeGuardado + "/Predicts/4X4"
             create_folder_if_not_exists(linkDeGuardado + "/Predicts/4X4")
+            data4x4 = []
+            data = np.load(data_path)
+            data4x4.append(data)
+            break
         else:
             linkDeGuardado = linkDeGuardado + "/Predicts/1X1"
             create_folder_if_not_exists(linkDeGuardado + "/Predicts/1X1")
+            data1x1 = []
+            data = np.load(data_path)
+            data1x1.append(data)
+            np.save(linkDeGuardado + "/Predicts/1X1.npy", data1x1)
+            
         
-        
+    
+    
+    # Para data2x2
+    data2x2_matrix = [data2x2[:2], data2x2[2:4]]
+
+    # Para data3x3
+    data3x3_matrix = [data3x3[:3], data3x3[3:6], data3x3[6:9]]
+
+    # Para data4x4
+    data4x4_matrix = [data4x4[:4], data4x4[4:8], data4x4[8:12], data4x4[12:16]]
+
+
+    data2x2 = fusion_data2x2(data2x2_matrix)
+    np.save(linkDeGuardado + "/Predicts/2X2.npy", data2x2)
+
+    data3x3 = fusion_data3x3(data3x3_matrix)
+    np.save(linkDeGuardado + "/Predicts/3X3.npy", data3x3)
+
+    data4x4 = fusion_data4x4(data4x4_matrix)
+    np.save(linkDeGuardado + "/Predicts/4X4.npy", data4x4)
+
+
+
 
 
             
@@ -917,9 +1040,9 @@ def paso_4( decoder, res_forescast, linkDeGuardado, classesBalanced, horizon):
     ##decoded_data = decode_predictions(decoder, res_forescast, linkDeGuardado)
     #save_img("decoded_data",decoded_data, linkDeGuardado, classesBalanced, horizon)
     paso_4_duration = time.time() - paso_4_start_time
-    return decoded_data, paso_4_duration
+    return paso_4_duration , data1x1, data2x2, data3x3, data4x4
 
-def paso_5( decoded_data, window, classesBalanced, horizon, linkDeGuardado, channels):
+def paso_5(rutaDB, data1x1 , data2x2, data3x3, data4x4 , window, classesBalanced, horizon, linkDeGuardado, channels):
     """
     Paso 5
     """
@@ -929,14 +1052,14 @@ def paso_5( decoded_data, window, classesBalanced, horizon, linkDeGuardado, chan
     #linkDeGuardado = linkDeGuardado + "/Predicts/"
 
     #carga de data
-    data_paths = get_archive_paths(linkDeGuardado+'/Predicts')
+    #data_paths = get_archive_paths(linkDeGuardado+'/Predicts')
+    data_parts = [data1x1, data2x2, data3x3, data4x4]
 
-    for data_path in data_paths:
-        
-
+    for data_part in data_parts:
+        start_time_part = time.time()
 
         #carga de data
-        x_load = load_data()
+        x_load = load_data(rutaDB)
         print("x_load: ", x_load.shape)
 
         x_2 = agroup_window(x_load, window)
@@ -988,8 +1111,15 @@ def paso_5( decoded_data, window, classesBalanced, horizon, linkDeGuardado, chan
 
         cm_f, cm_n = calculate_confusion_matrix(new_data, y_test, naive, classesBalanced, rows, cols, horizon)
         save_confusion_matrices_to_excel(cm_f, cm_n, linkDeGuardado)
-        paso_5_duration = time.time() - paso_5_start_time
-        return paso_5_duration
+
+        end_time_part = time.time()
+        duration_part = end_time_part - start_time_part
+        print(f"Parte {str(data_part)} en {duration_part:.2f} segundos.")
+        with open(os.path.join(linkDeGuardado, "time_estimation_part.txt"), "a") as f:
+            f.write(f"Parte {str(data_part)} en {duration_part:.2f} segundos.\n")
+
+    paso_5_duration = time.time() - paso_5_start_time
+    return paso_5_duration
 
 def main():
     linkDeGuardado = "DroughtDatasetMask/Parte1/Recorte/"
@@ -1018,19 +1148,19 @@ def main():
 
     with strategy.scope():
         
-        #paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
+        paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
         
 
-        #paso_2_duration = paso_2( folder_path= "DroughtDatasetMask/Parte1/Recorte/PruebaModulos1",linkDeGuardado=linkDeGuardado)
+        paso_2_duration = paso_2( folder_path=linkDeGuardado,linkDeGuardado=linkDeGuardado)
 
         paso_3_duration = paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado , classesBalanced)
 
-        #decoded_data, paso_4_duration = paso_4(decoder, res_forescast, linkDeGuardado, classesBalanced, horizon)
+        paso_4_duration, data1x1, data2x2, data3x3, data4x4  = paso_4( linkDeGuardado)
 
-        #paso_5_duration = paso_5(decoded_data, window, classesBalanced, horizon, linkDeGuardado, channels)
+        paso_5_duration = paso_5( "C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",data1x1, data2x2, data3x3, data4x4, window, classesBalanced, horizon, linkDeGuardado, channels)
         
         training_duration = end_time_monitoring(start_total_time)
-        #time_monitoring(linkDeGuardado, training_duration, paso_1_duration, paso_2_duration, paso_3_duration, paso_4_duration, paso_5_duration)
+        time_monitoring(linkDeGuardado, training_duration, paso_1_duration, paso_2_duration, paso_3_duration, paso_4_duration, paso_5_duration)
         #stop_monitoring_resources()
         
 
