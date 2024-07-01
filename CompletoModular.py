@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import threading
 import numpy as np
@@ -11,6 +12,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
 import cv2
+import io
 
 
 
@@ -223,9 +225,15 @@ def setup_strategy():
     print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
     return strategy
 
-def load_data():
-    x_load = np.load("/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/dataSetAutoencoder/DatasetAutoencoder/DataSetLatentSpace/Npy/Balanced/V1/Dataset120x360GreysNewCategories.npy")
-    return x_load / 255
+def load_data(ruta):
+    #si es un arichivo zip se puede usar np.load(io.BytesIO(archivo_zip.read(nombre_archivo)))
+    if ruta.endswith(".npy"):
+        data = np.load(ruta)
+    elif ruta.endswith(".zip"):
+        with open(ruta, 'rb') as archivo_zip:
+            data = np.load(io.BytesIO(archivo_zip.read(ruta)))
+    ##x_load = np.load("/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/dataSetAutoencoder/DatasetAutoencoder/DataSetLatentSpace/Npy/Balanced/V1/Dataset120x360GreysNewCategories.npy")
+    return data / 255
 
 def split_data(x):
     x_train = x[:int(len(x) * .7)]
@@ -308,6 +316,7 @@ def save_encoder_decoder(encoder, decoder, linkDeGuardado):
 
 def load_and_normalize_data(path):
     data = np.load(path)
+    data = data.astype("float32")
     return data / 255
 
 def save_latent_space(encoder, data, linkDeGuardado):
@@ -471,7 +480,13 @@ def save_confusion_matrices_to_excel(cm_f, cm_n, linkDeGuardado):
         df_cm_n.to_excel(writer, startcol=offset, index=True)
 
 def define_rows_cols(data):
-    if len(data.shape) == 4:
+    if len(data.shape) == 3:
+        rows = data.shape[1]
+        print("rows: ", rows)
+        cols = data.shape[2]
+        print("cols: ", cols)
+        return rows, cols
+    elif len(data.shape) == 4:
         rows = data.shape[1]
         print("rows: ", rows)
         cols = data.shape[2]
@@ -677,7 +692,7 @@ def create_npy_from_images(folder_path, folder_save):
         #print(file)
         #pasar a escala de grises
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        print(image.shape)
+        #print(image.shape)
         # Add the image to the list
         images.append(image)
 
@@ -685,14 +700,17 @@ def create_npy_from_images(folder_path, folder_save):
     images_array = np.array(images)
 
     # Print the shape of the numpy array
-    print(images_array.shape)
+    #print(images_array.shape)
 
     #from folder_path extract the name of the folder
     folder_name = folder_path.split('/')[-1]
-    print(folder_name)
+    print("folder_name",folder_name)
+    folder_name = folder_name.replace("\\", "_")
 
+    if not os.path.exists(folder_save+'/npy/'):
+        os.makedirs(folder_save+'/npy/')
     # Save the numpy array to a file
-    #np.save(folder_save+'/DroughtDatasetMask1x1.npy', images_array)
+    np.save(folder_save+'/npy/'+folder_name+'.npy', images_array)
 
 def paso_1(folder_path, linkDeGuardado):
     
@@ -703,6 +721,7 @@ def paso_1(folder_path, linkDeGuardado):
     print("\nPaso 1\n")
     #carga de data
     #x_load = load_data()
+
     fragment_picture(folder_path=folder_path, folder_save=linkDeGuardado)
     #print("x_load: ", x_load.shape)
     #print("x_load min: ", x_load.min())
@@ -723,14 +742,21 @@ def paso_1(folder_path, linkDeGuardado):
 
     return paso_1_duration
 
-def process_directory(directory):
+def get_folder_paths(directory):
+    folder_paths = []
+    for root, dirs, files in os.walk(directory):
+        for dir in dirs:
+            folder_path = os.path.join(root, dir)
+            folder_paths.append(folder_path)
+    return folder_paths  
+
+def get_archive_paths(directory):
+    archive_paths = []
     for root, dirs, files in os.walk(directory):
         for file in files:
-            if file.endswith(('png', 'jpg', 'jpeg', 'bmp', 'gif')):  # Archivos de imagen comunes
-                file_path = os.path.join(root, file)
-                print(f"Procesando: {file_path}")
-                #process_image(file_path)
-                #print(f"Procesado: {file_path}")
+            archive_path = os.path.join(root, file)
+            archive_paths.append(archive_path)
+    return archive_paths
 
 def paso_2(folder_path, linkDeGuardado):
     """
@@ -742,9 +768,12 @@ def paso_2(folder_path, linkDeGuardado):
     #latent = save_latent_space(encoder, x_load, linkDeGuardado)
     # Set the path to the folder containing the images
     #recorrer carpetas 
-    process_directory(folder_path)
-            
-            #create_npy_from_images(folder_path, linkDeGuardado)
+    folder_paths = get_folder_paths(folder_path)
+    for folder_path in folder_paths:
+        #print(folder_path)
+        if ("crop") in folder_path:
+            create_npy_from_images(folder_path, linkDeGuardado)
+        #create_npy_from_images(folder_path, linkDeGuardado)
         
                 
         #create_npy_from_images(folder_path, linkDeGuardado)
@@ -756,107 +785,339 @@ def paso_2(folder_path, linkDeGuardado):
     paso_2_duration = time.time() - paso_2_start_time
     return paso_2_duration
 
-def paso_3( latent, window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado):
+def save_xtest_ytest(x_test, y_test, linkDeGuardado):
+    np.save(linkDeGuardado + "/x_test.npy", x_test)
+    np.save(linkDeGuardado + "/y_test.npy", y_test)
+
+def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado, categories):
     """
     #Paso 3 Estimar 
     """
     paso_3_start_time = time.time()
     print("\nPaso 3 \n")
-    #agrupar en ventanas
-    x_2 = agroup_window(latent, window)
 
-    #definir rows y cols
-    rows, cols = define_rows_cols(latent)
+    print("linkDeGuardado npy", linkDeGuardado+'/npy/')
+    #carga de data
+    data_paths = get_archive_paths(linkDeGuardado+'/npy')
 
-    #separar data para entrenar ConvLSTM
-    x_train, x_validation, x_test = split_data(x_2)
-        
-    #reshape de data
-    x_train = reshape_data(x_train, window, rows, cols, channels)
-    x_validation = reshape_data(x_validation, window, rows, cols, channels)
-    x_test = reshape_data(x_test, window, rows, cols, channels)
+    for data_path in data_paths:
+        if ("crop") in data_path:
+            if ("2X2") in data_path:
+                linkDeGuardado = linkDeGuardado + "/Predicts/2X2"
+                create_folder_if_not_exists(linkDeGuardado + "/Predicts/2X2")
+                break
+            elif ("3X3") in data_path:
+                linkDeGuardado = linkDeGuardado + "/Predicts/3X3"
+                create_folder_if_not_exists(linkDeGuardado + "/Predicts/3X3")
+                break
+            elif ("4X4") in data_path:
+                linkDeGuardado = linkDeGuardado + "/Predicts/4X4"
+                create_folder_if_not_exists(linkDeGuardado + "/Predicts/4X4")
+                break
+            else:
+                linkDeGuardado = linkDeGuardado + "/Predicts/1X1"
+                create_folder_if_not_exists(linkDeGuardado + "/Predicts/1X1")
+            
 
-    #crear desplazamientos para convLSTM
-    x_train, y_train = create_shifted_frames_2(x_train)
-    x_validation, y_validation = create_shifted_frames_2(x_validation)
-    x_test, y_test = create_shifted_frames_2(x_test)
 
-    #entrenar 
-    model = build_and_train_conv_lstm(x_train, y_train, x_validation, y_validation, linkDeGuardado, rows, cols, channels , bach_size, epochs, patience)
-    res_forescast = evaluate_and_forecast(model, x_test, y_test, linkDeGuardado )
+            estimate_crop_start_time = time.time()
+
+            x = load_and_normalize_data(data_path)
+            #x = np.load(data_path)
+            ##print("Parte", parte)
+
+            #print("x", x.shape)
+            #print("x", x.dtype)
+            #print("x", x.min())
+            #print("x", x.max())
+
+            #inicio
+            x = np.array([gray_quantized(i, np.array(categories)) for i in x])
+            #colors_greys = get_colors(x[1168])
+            #print(f"Colores antes{colors_greys}")
+            #print(x.shape)
+
+            x_greys = np.array([recolor_greys_image_optimized(img, categories) for img in x])
+            x = x_greys.astype('float32') / 255
+            print(f"colores categoricos {get_colors(x[1168])}")
+            print(("x min", x.min()))
+            print(("x max", x.max()))
+
+            #agrupar en ventanas
+            x_2 = agroup_window(x, window)
+
+            #definir rows y cols
+            rows, cols = define_rows_cols(x)
+            
+            #separar data para entrenar ConvLSTM
+            x_train, x_validation, x_test = split_data(x_2)
+
+            #reshape de data
+            x_train = reshape_data(x_train, window, rows, cols, channels)
+            x_validation = reshape_data(x_validation, window, rows, cols, channels)
+            x_test = reshape_data(x_test, window, rows, cols, channels)
+
+            #crear desplazamientos para convLSTM
+            x_train, y_train = create_shifted_frames_2(x_train)
+            x_validation, y_validation = create_shifted_frames_2(x_validation)
+            x_test, y_test = create_shifted_frames_2(x_test)
+
+            save_xtest_ytest(x_test, y_test, linkDeGuardado)
+            #entrenar 
+            model = build_and_train_conv_lstm(x_train, y_train, x_validation, y_validation, linkDeGuardado, rows, cols, channels , bach_size, epochs, patience)
+            res_forescast = evaluate_and_forecast(model, x_test, y_test, linkDeGuardado )
+            
+            path_name = data_path.split('/')[-1]
+            path_name = path_name.split('.')[0]
+            print("path_name", path_name)
+
+            #guardar resultados
+            #np.save(linkDeGuardado + "/PredictionsConvolutionLSTM_forecast.npy", res_forescast)
+            estimate_crop_duration = time.time() - estimate_crop_start_time
+            print(f"Estimación de crop {path_name} completada en {estimate_crop_duration:.2f} segundos.")
+
+            #guardar el tiempo de estimación de crop
+            with open(os.path.join(linkDeGuardado, "time_estimation_crop.txt"), "a") as f:
+                f.write(f"Estimación de crop {path_name} completada en {estimate_crop_duration:.2f} segundos.\n")
+            
+            sys.exit()
+            
+    
     paso_3_duration = time.time() - paso_3_start_time
-    return res_forescast, paso_3_duration
+    return paso_3_duration
 
-def paso_4( decoder, res_forescast, linkDeGuardado, classesBalanced, horizon):
+def asing_data(data2x2, data3x3, data4x4):
+    data2x2_matrix = [data2x2[:2], data2x2[2:4]]
+    data3x3_matrix = [data3x3[:3], data3x3[3:6], data3x3[6:9]]
+    data4x4_matrix = [data4x4[:4], data4x4[4:8], data4x4[8:12], data4x4[12:16]]
+    return data2x2_matrix, data3x3_matrix, data4x4_matrix
+
+def fusion_data2x2(data2x2_matrix):
+    #fusion de datos
+    data2x2_matrix[0][0] = data2x2_matrix[0][0][:, :, :, :-4, :]
+    data2x2_matrix[0][1] = data2x2_matrix[0][1][:, :, :, 6:, :]
+    data2x2_matrix[1][0] = data2x2_matrix[1][0][:, :, :, :-4, :]
+    data2x2_matrix[1][1] = data2x2_matrix[1][1][:, :, :, 6:, :]
+
+    #concatenar los datos
+    data2x2_0 = np.concatenate((data2x2_matrix[0][0], data2x2_matrix[0][1]), axis=3)
+    data2x2_1 = np.concatenate((data2x2_matrix[1][0], data2x2_matrix[1][1]), axis=3)
+
+    data2x2_0 = data2x2_0[:, :, :-4, :, ]
+    data2x2_1 = data2x2_1[:, :, 6:, :, ]
+
+    data2x2 = np.concatenate((data2x2_0, data2x2_1), axis=2)
+    print("data2x2", data2x2.shape)
+    return data2x2
+
+def fusion_data3x3(data3x3_matrix):
+    #fusion de datos
+    data3x3_matrix[0][0] = data3x3_matrix[0][0][:, :, :, :-4, :]
+    data3x3_matrix[0][1] = data3x3_matrix[0][1][:, :, :, 6:, :]
+    data3x3_matrix[0][2] = data3x3_matrix[0][2][:, :, :, 6:, :]
+    data3x3_matrix[1][0] = data3x3_matrix[1][0][:, :, :, :-4, :]
+    data3x3_matrix[1][1] = data3x3_matrix[1][1][:, :, :, 6:, :]
+    data3x3_matrix[1][2] = data3x3_matrix[1][2][:, :, :, 6:, :]
+    data3x3_matrix[2][0] = data3x3_matrix[2][0][:, :, :, :-4, :]
+    data3x3_matrix[2][1] = data3x3_matrix[2][1][:, :, :, 6:, :]
+    data3x3_matrix[2][2] = data3x3_matrix[2][2][:, :, :, 6:, :]
+
+    #concatenar los datos
+    data3x3_0 = np.concatenate((data3x3_matrix[0][0], data3x3_matrix[0][1], data3x3_matrix[0][2]), axis=3)
+    data3x3_1 = np.concatenate((data3x3_matrix[1][0], data3x3_matrix[1][1], data3x3_matrix[1][2]), axis=3)
+    data3x3_2 = np.concatenate((data3x3_matrix[2][0], data3x3_matrix[2][1], data3x3_matrix[2][2]), axis=3)
+
+    data3x3_0 = data3x3_0[:, :, :-4, :, ]
+    data3x3_1 = data3x3_1[:, :, 6:, :, ]
+    data3x3_2 = data3x3_2[:, :, 6:, :, ]
+
+    data3x3 = np.concatenate((data3x3_0, data3x3_1, data3x3_2), axis=2)
+    print("data3x3", data3x3.shape)
+    return data3x3
+
+def fusion_data4x4(data4x4_matrix):
+    #fusion de datos
+    data4x4_matrix[0][0] = data4x4_matrix[0][0][:, :, :, :-4, :]
+    data4x4_matrix[0][1] = data4x4_matrix[0][1][:, :, :, 6:, :]
+    data4x4_matrix[0][2] = data4x4_matrix[0][2][:, :, :, 6:, :]
+    data4x4_matrix[0][3] = data4x4_matrix[0][3][:, :, :, 6:, :]
+    data4x4_matrix[1][0] = data4x4_matrix[1][0][:, :, :, :-4, :]
+    data4x4_matrix[1][1] = data4x4_matrix[1][1][:, :, :, 6:, :]
+    data4x4_matrix[1][2] = data4x4_matrix[1][2][:, :, :, 6:, :]
+    data4x4_matrix[1][3] = data4x4_matrix[1][3][:, :, :, 6:, :]
+    data4x4_matrix[2][0] = data4x4_matrix[2][0][:, :, :, :-4, :]
+    data4x4_matrix[2][1] = data4x4_matrix[2][1][:, :, :, 6:, :]
+    data4x4_matrix[2][2] = data4x4_matrix[2][2][:, :, :, 6:, :]
+    data4x4_matrix[2][3] = data4x4_matrix[2][3][:, :, :, 6:, :]
+    data4x4_matrix[3][0] = data4x4_matrix[3][0][:, :, :, :-4, :]
+    data4x4_matrix[3][1] = data4x4_matrix[3][1][:, :, :, 6:, :]
+    data4x4_matrix[3][2] = data4x4_matrix[3][2][:, :, :, 6:, :]
+    data4x4_matrix[3][3] = data4x4_matrix[3][3][:, :, :, 6:, :]
+
+    #concatenar los datos
+    data4x4_0 = np.concatenate((data4x4_matrix[0][0], data4x4_matrix[0][1], data4x4_matrix[0][2], data4x4_matrix[0][3]), axis=3)
+    data4x4_1 = np.concatenate((data4x4_matrix[1][0], data4x4_matrix[1][1], data4x4_matrix[1][2], data4x4_matrix[1][3]), axis=3)
+    data4x4_2 = np.concatenate((data4x4_matrix[2][0], data4x4_matrix[2][1], data4x4_matrix[2][2], data4x4_matrix[2][3]), axis=3)
+    data4x4_3 = np.concatenate((data4x4_matrix[3][0], data4x4_matrix[3][1], data4x4_matrix[3][2], data4x4_matrix[3][3]), axis=3)
+
+    data4x4_0 = data4x4_0[:, :, :-4, :, ]
+    data4x4_1 = data4x4_1[:, :, 6:, :, ]
+    data4x4_2 = data4x4_2[:, :, 6:, :, ]
+    data4x4_3 = data4x4_3[:, :, 6:, :, ]
+
+    data4x4 = np.concatenate((data4x4_0, data4x4_1, data4x4_2, data4x4_3), axis=2)
+    print("data4x4", data4x4.shape)
+    return data4x4
+
+
+def paso_4( linkDeGuardado):
     """
-    #Paso 4
+    #Paso 4 Fusion de datos
     """
     paso_4_start_time = time.time()
     print("\n Paso 4\n ")
-    decoded_data = decode_predictions(decoder, res_forescast, linkDeGuardado)
-    save_img("decoded_data",decoded_data, linkDeGuardado, classesBalanced, horizon)
-    paso_4_duration = time.time() - paso_4_start_time
-    return decoded_data, paso_4_duration
+    #carga de data
+    archive_path = get_archive_paths(linkDeGuardado + "/Predicts")
+    for data_path in archive_path:
+        if ("2X2") in data_path:
+            linkDeGuardado = linkDeGuardado + "/Predicts/2X2"
+            create_folder_if_not_exists(linkDeGuardado + "/Predicts/2X2")
+            data2x2 = []
+            data = np.load(data_path)
+            data2x2.append(data)
+            break
+        elif ("3X3") in data_path:
+            linkDeGuardado = linkDeGuardado + "/Predicts/3X3"
+            create_folder_if_not_exists(linkDeGuardado + "/Predicts/3X3")
+            data3x3 = []
+            data = np.load(data_path)
+            data3x3.append(data)
+            break
+        elif ("4X4") in data_path:
+            linkDeGuardado = linkDeGuardado + "/Predicts/4X4"
+            create_folder_if_not_exists(linkDeGuardado + "/Predicts/4X4")
+            data4x4 = []
+            data = np.load(data_path)
+            data4x4.append(data)
+            break
+        else:
+            linkDeGuardado = linkDeGuardado + "/Predicts/1X1"
+            create_folder_if_not_exists(linkDeGuardado + "/Predicts/1X1")
+            data1x1 = []
+            data = np.load(data_path)
+            data1x1.append(data)
+            np.save(linkDeGuardado + "/Predicts/1X1.npy", data1x1)
+            
+        
+    
+    
+    # Para data2x2
+    data2x2_matrix = [data2x2[:2], data2x2[2:4]]
 
-def paso_5( decoded_data, window, classesBalanced, horizon, linkDeGuardado, channels):
+    # Para data3x3
+    data3x3_matrix = [data3x3[:3], data3x3[3:6], data3x3[6:9]]
+
+    # Para data4x4
+    data4x4_matrix = [data4x4[:4], data4x4[4:8], data4x4[8:12], data4x4[12:16]]
+
+
+    data2x2 = fusion_data2x2(data2x2_matrix)
+    np.save(linkDeGuardado + "/Predicts/2X2.npy", data2x2)
+
+    data3x3 = fusion_data3x3(data3x3_matrix)
+    np.save(linkDeGuardado + "/Predicts/3X3.npy", data3x3)
+
+    data4x4 = fusion_data4x4(data4x4_matrix)
+    np.save(linkDeGuardado + "/Predicts/4X4.npy", data4x4)
+
+
+
+
+
+            
+
+
+    ##decoded_data = decode_predictions(decoder, res_forescast, linkDeGuardado)
+    #save_img("decoded_data",decoded_data, linkDeGuardado, classesBalanced, horizon)
+    paso_4_duration = time.time() - paso_4_start_time
+    return paso_4_duration , data1x1, data2x2, data3x3, data4x4
+
+def paso_5(rutaDB, data1x1 , data2x2, data3x3, data4x4 , window, classesBalanced, horizon, linkDeGuardado, channels):
     """
     Paso 5
     """
     paso_5_start_time = time.time()
     print("\nPaso 5\n")
+
+    #linkDeGuardado = linkDeGuardado + "/Predicts/"
+
     #carga de data
-    x_load = load_data()
-    print("x_load: ", x_load.shape)
+    #data_paths = get_archive_paths(linkDeGuardado+'/Predicts')
+    data_parts = [data1x1, data2x2, data3x3, data4x4]
 
-    x_2 = agroup_window(x_load, window)
-    #separacion de data
-    x_train, x_validation, x_test = split_data(x_2)
-    print("x_train: ", x_train.shape)
-    print("x_validation: ", x_validation.shape)
-    print("x_test: ", x_test.shape)
-    
-    rows, cols = define_rows_cols(decoded_data)
+    for data_part in data_parts:
+        start_time_part = time.time()
 
-    #reshape de data
-    x_train = reshape_data(x_train, window, rows, cols, channels)
-    print("x_train: ", x_train.shape)
-    x_validation = reshape_data(x_validation, window, rows, cols, channels)
-    print("x_validation: ", x_validation.shape)
-    x_test = reshape_data(x_test, window, rows, cols, channels)
-    print("x_test: ", x_test.shape)
+        #carga de data
+        x_load = load_data(rutaDB)
+        print("x_load: ", x_load.shape)
 
-    #crear desplazamientos para convLSTM
-    x_train, y_train = create_shifted_frames_2(x_train)
-    x_validation, y_validation = create_shifted_frames_2(x_validation)
-    x_test, y_test = create_shifted_frames_2(x_test)
-        
-    print("ytest", y_test.shape)
+        x_2 = agroup_window(x_load, window)
+        #separacion de data
+        x_train, x_validation, x_test = split_data(x_2)
+        print("x_train: ", x_train.shape)
+        print("x_validation: ", x_validation.shape)
+        print("x_test: ", x_test.shape)
 
-    y_test = get_cubes(y_test, horizon)
-        
-    naive, decoded_data = displaceData(x_test, decoded_data)
-    n_real, naive = naive_window(naive, horizon)
-    new_data = categorize_image(decoded_data, classesBalanced)
-    print("valores unicos de new_data: ", np.unique(new_data))
-    print("valores unicos de y_test: ", np.unique(y_test))
-    print("valores unicos de naive: ", np.unique(naive))
+        rows, cols = define_rows_cols(decoded_data)
 
-    save_img("new data",new_data, linkDeGuardado, classesBalanced, horizon)
-    save_img("y_test",y_test, linkDeGuardado, classesBalanced, horizon)
-    save_img("naive",naive, linkDeGuardado, classesBalanced, horizon)
+        #reshape de data
+        x_train = reshape_data(x_train, window, rows, cols, channels)
+        print("x_train: ", x_train.shape)
+        x_validation = reshape_data(x_validation, window, rows, cols, channels)
+        print("x_validation: ", x_validation.shape)
+        x_test = reshape_data(x_test, window, rows, cols, channels)
+        print("x_test: ", x_test.shape)
 
-    print("new_data: ", new_data.shape)
-    print("y_test: ", y_test.shape)
-    print("naive: ", naive.shape)
-    print("classesBalanced: ", classesBalanced)
-    print("rows: ", rows)
-    print("cols: ", cols)
-    print("horizon: ", horizon)
-    print("len(classesBalanced)", len(classesBalanced))
+        #crear desplazamientos para convLSTM
+        x_train, y_train = create_shifted_frames_2(x_train)
+        x_validation, y_validation = create_shifted_frames_2(x_validation)
+        x_test, y_test = create_shifted_frames_2(x_test)
 
-        
-    cm_f, cm_n = calculate_confusion_matrix(new_data, y_test, naive, classesBalanced, rows, cols, horizon)
-    save_confusion_matrices_to_excel(cm_f, cm_n, linkDeGuardado)
+        print("ytest", y_test.shape)
+
+        y_test = get_cubes(y_test, horizon)
+
+        naive, decoded_data = displaceData(x_test, decoded_data)
+        n_real, naive = naive_window(naive, horizon)
+        new_data = categorize_image(decoded_data, classesBalanced)
+        print("valores unicos de new_data: ", np.unique(new_data))
+        print("valores unicos de y_test: ", np.unique(y_test))
+        print("valores unicos de naive: ", np.unique(naive))
+
+        save_img("new data",new_data, linkDeGuardado, classesBalanced, horizon)
+        save_img("y_test",y_test, linkDeGuardado, classesBalanced, horizon)
+        save_img("naive",naive, linkDeGuardado, classesBalanced, horizon)
+
+        print("new_data: ", new_data.shape)
+        print("y_test: ", y_test.shape)
+        print("naive: ", naive.shape)
+        print("classesBalanced: ", classesBalanced)
+        print("rows: ", rows)
+        print("cols: ", cols)
+        print("horizon: ", horizon)
+        print("len(classesBalanced)", len(classesBalanced))
+
+
+        cm_f, cm_n = calculate_confusion_matrix(new_data, y_test, naive, classesBalanced, rows, cols, horizon)
+        save_confusion_matrices_to_excel(cm_f, cm_n, linkDeGuardado)
+
+        end_time_part = time.time()
+        duration_part = end_time_part - start_time_part
+        print(f"Parte {str(data_part)} en {duration_part:.2f} segundos.")
+        with open(os.path.join(linkDeGuardado, "time_estimation_part.txt"), "a") as f:
+            f.write(f"Parte {str(data_part)} en {duration_part:.2f} segundos.\n")
+
     paso_5_duration = time.time() - paso_5_start_time
     return paso_5_duration
 
@@ -887,20 +1148,20 @@ def main():
 
     with strategy.scope():
         
-        #paso_1_duration = paso_1(folder_path="/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
+        paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
         
 
-        paso_2_duration = paso_2( folder_path= "DroughtDatasetMask/Parte1/Recorte/PruebaModulos1",linkDeGuardado=linkDeGuardado)
+        paso_2_duration = paso_2( folder_path=linkDeGuardado,linkDeGuardado=linkDeGuardado)
 
-        #res_forescast , paso_3_duration = paso_3(latent, window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado)
+        paso_3_duration = paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado , classesBalanced)
 
-        #decoded_data, paso_4_duration = paso_4(decoder, res_forescast, linkDeGuardado, classesBalanced, horizon)
+        paso_4_duration, data1x1, data2x2, data3x3, data4x4  = paso_4( linkDeGuardado)
 
-        #paso_5_duration = paso_5(decoded_data, window, classesBalanced, horizon, linkDeGuardado, channels)
+        paso_5_duration = paso_5( "C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",data1x1, data2x2, data3x3, data4x4, window, classesBalanced, horizon, linkDeGuardado, channels)
         
         training_duration = end_time_monitoring(start_total_time)
-        #time_monitoring(linkDeGuardado, training_duration, paso_1_duration, paso_2_duration, paso_3_duration, paso_4_duration, paso_5_duration)
-        stop_monitoring_resources()
+        time_monitoring(linkDeGuardado, training_duration, paso_1_duration, paso_2_duration, paso_3_duration, paso_4_duration, paso_5_duration)
+        #stop_monitoring_resources()
         
 
 if __name__ == "__main__":
