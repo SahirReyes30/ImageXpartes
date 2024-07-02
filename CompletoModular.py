@@ -674,7 +674,7 @@ def fragment_picture(folder_path, folder_save):
 
 
 
-def create_npy_from_images(folder_path, folder_save, folder_name):
+def create_npy_from_images(folder_path, folder_save):
     # Set the path to the folder containing the images
     folder_path = folder_path
 
@@ -707,8 +707,10 @@ def create_npy_from_images(folder_path, folder_save, folder_name):
     ##print("folder_name",folder_name)
     crop_name = crop_name.replace("\\", "_")
 
-    if not os.path.exists(folder_save+'/npy/'+folder_name + '/' + crop_name):
-        os.makedirs(folder_save+'/npy/'+folder_name+ '/' + crop_name)
+    folder_name = crop_name.split('_')[1]
+
+    if not os.path.exists(folder_save+'/npy/'+folder_name ):
+        os.makedirs(folder_save+'/npy/'+folder_name)
     # Save the numpy array to a file
     np.save(folder_save+'/npy/'+folder_name+'/'+crop_name+'.npy', images_array)
 
@@ -772,7 +774,8 @@ def paso_2(folder_path, linkDeGuardado):
     for folder_path in folder_paths:
         #print(folder_path)
         if ("crop") in folder_path:
-            create_npy_from_images(folder_path, linkDeGuardado,folder_path.split('/')[-1])
+            print(folder_path)
+            create_npy_from_images(folder_path, linkDeGuardado)
         #create_npy_from_images(folder_path, linkDeGuardado)
         
                 
@@ -784,7 +787,7 @@ def paso_2(folder_path, linkDeGuardado):
 
 
     paso_2_duration = time.time() - paso_2_start_time
-    print(f"Paso 2 completado en {paso_2_duration:.2f}) segundos.")
+    print(f"Paso 2 completado en {paso_2_duration:.2f} segundos.")
     return paso_2_duration
 
 def save_xtest_ytest(x_test, y_test, linkDeGuardado):
@@ -1158,17 +1161,17 @@ def main():
 
     with strategy.scope():
         
-        ##paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
-        paso_1_duration = paso_1(folder_path="/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
+        paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
+        #paso_1_duration = paso_1(folder_path="/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
         
 
         paso_2_duration = paso_2( folder_path=linkDeGuardado,linkDeGuardado=linkDeGuardado)
+        sys.exit()
+        #paso_3_duration = paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado , classesBalanced)
 
-        paso_3_duration = paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado , classesBalanced)
+        #paso_4_duration, data1x1, data2x2, data3x3, data4x4  = paso_4( linkDeGuardado)
 
-        paso_4_duration, data1x1, data2x2, data3x3, data4x4  = paso_4( linkDeGuardado)
-
-        paso_5_duration = paso_5( "/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",data1x1, data2x2, data3x3, data4x4, window, classesBalanced, horizon, linkDeGuardado, channels)
+        #paso_5_duration = paso_5( "/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",data1x1, data2x2, data3x3, data4x4, window, classesBalanced, horizon, linkDeGuardado, channels)
         
         training_duration = end_time_monitoring(start_total_time)
         time_monitoring(linkDeGuardado, training_duration, paso_1_duration, paso_2_duration, paso_3_duration, paso_4_duration, paso_5_duration)
