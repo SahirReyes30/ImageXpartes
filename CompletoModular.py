@@ -774,6 +774,7 @@ def paso_2(folder_path, linkDeGuardado):
     for folder_path in folder_paths:
         #print(folder_path)
         if ("crop") in folder_path:
+            print(folder_path)
             create_npy_from_images(folder_path, linkDeGuardado)
         #create_npy_from_images(folder_path, linkDeGuardado)
         
