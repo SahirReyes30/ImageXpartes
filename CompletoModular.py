@@ -674,7 +674,7 @@ def fragment_picture(folder_path, folder_save):
 
 
 
-def create_npy_from_images(folder_path, folder_save):
+def create_npy_from_images(folder_path, folder_save, folder_name):
     # Set the path to the folder containing the images
     folder_path = folder_path
 
@@ -701,16 +701,16 @@ def create_npy_from_images(folder_path, folder_save):
 
     # Print the shape of the numpy array
     #print(images_array.shape)
-
+ 
     #from folder_path extract the name of the folder
-    folder_name = folder_path.split('/')[-1]
-    print("folder_name",folder_name)
-    folder_name = folder_name.replace("\\", "_")
+    crop_name = folder_path.split('/')[-1]
+    ##print("folder_name",folder_name)
+    crop_name = crop_name.replace("\\", "_")
 
-    if not os.path.exists(folder_save+'/npy/'):
-        os.makedirs(folder_save+'/npy/')
+    if not os.path.exists(folder_save+'/npy/'+folder_name + '/' + crop_name):
+        os.makedirs(folder_save+'/npy/'+folder_name+ '/' + crop_name)
     # Save the numpy array to a file
-    np.save(folder_save+'/npy/'+folder_name+'.npy', images_array)
+    np.save(folder_save+'/npy/'+folder_name+'/'+crop_name+'.npy', images_array)
 
 def paso_1(folder_path, linkDeGuardado):
     
@@ -763,7 +763,7 @@ def paso_2(folder_path, linkDeGuardado):
     #Paso 2 crear numpys de data
     """
     paso_2_start_time = time.time()
-    #print("\n Paso 2 \n")
+    print("\n Paso 2 \n")
     ##guardar espacio latente
     #latent = save_latent_space(encoder, x_load, linkDeGuardado)
     # Set the path to the folder containing the images
@@ -772,7 +772,7 @@ def paso_2(folder_path, linkDeGuardado):
     for folder_path in folder_paths:
         #print(folder_path)
         if ("crop") in folder_path:
-            create_npy_from_images(folder_path, linkDeGuardado)
+            create_npy_from_images(folder_path, linkDeGuardado,folder_path.split('/')[-1])
         #create_npy_from_images(folder_path, linkDeGuardado)
         
                 
@@ -782,41 +782,47 @@ def paso_2(folder_path, linkDeGuardado):
     
 
 
+
     paso_2_duration = time.time() - paso_2_start_time
+    print(f"Paso 2 completado en {paso_2_duration:.2f}) segundos.")
     return paso_2_duration
 
 def save_xtest_ytest(x_test, y_test, linkDeGuardado):
     np.save(linkDeGuardado + "/x_test.npy", x_test)
     np.save(linkDeGuardado + "/y_test.npy", y_test)
 
-def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado, categories):
+def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardadoViejo, categories):
     """
     #Paso 3 Estimar 
     """
     paso_3_start_time = time.time()
     print("\nPaso 3 \n")
 
-    print("linkDeGuardado npy", linkDeGuardado+'/npy/')
+    #print("linkDeGuardado npy", linkDeGuardado+'/npy/')
     #carga de data
-    data_paths = get_archive_paths(linkDeGuardado+'/npy')
+    data_paths = get_archive_paths(linkDeGuardadoViejo+'/npy')
 
     for data_path in data_paths:
         if ("crop") in data_path:
             if ("2X2") in data_path:
-                linkDeGuardado = linkDeGuardado + "/Predicts/2X2"
-                create_folder_if_not_exists(linkDeGuardado + "/Predicts/2X2")
-                break
+                create_folder_if_not_exists(linkDeGuardadoViejo , "/Predicts/2X2")
+                linkDeGuardado = linkDeGuardadoViejo + "/Predicts/2X2"
+                
+                
             elif ("3X3") in data_path:
-                linkDeGuardado = linkDeGuardado + "/Predicts/3X3"
-                create_folder_if_not_exists(linkDeGuardado + "/Predicts/3X3")
-                break
+                create_folder_if_not_exists(linkDeGuardadoViejo , "/Predicts/3X3")
+                linkDeGuardado = linkDeGuardadoViejo + "/Predicts/3X3"
+                
+                
             elif ("4X4") in data_path:
-                linkDeGuardado = linkDeGuardado + "/Predicts/4X4"
-                create_folder_if_not_exists(linkDeGuardado + "/Predicts/4X4")
-                break
+                create_folder_if_not_exists(linkDeGuardadoViejo , "/Predicts/4X4")
+                linkDeGuardado = linkDeGuardadoViejo + "/Predicts/4X4"
+                
+                
             else:
-                linkDeGuardado = linkDeGuardado + "/Predicts/1X1"
-                create_folder_if_not_exists(linkDeGuardado + "/Predicts/1X1")
+                create_folder_if_not_exists(linkDeGuardadoViejo , "/Predicts/1X1")
+                linkDeGuardado = linkDeGuardadoViejo + "/Predicts/1X1"
+                
             
 
 
@@ -872,15 +878,15 @@ def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGua
             print("path_name", path_name)
 
             #guardar resultados
-            #np.save(linkDeGuardado + "/PredictionsConvolutionLSTM_forecast.npy", res_forescast)
+            np.save(linkDeGuardado + "/PredictionsConvolutionLSTM_forecast.npy", res_forescast)
             estimate_crop_duration = time.time() - estimate_crop_start_time
             print(f"Estimación de crop {path_name} completada en {estimate_crop_duration:.2f} segundos.")
 
             #guardar el tiempo de estimación de crop
-            with open(os.path.join(linkDeGuardado, "time_estimation_crop.txt"), "a") as f:
+            with open(os.path.join(linkDeGuardadoViejo, "time_estimation_crop.txt"), "a") as f:
                 f.write(f"Estimación de crop {path_name} completada en {estimate_crop_duration:.2f} segundos.\n")
             
-            sys.exit()
+            
             
     
     paso_3_duration = time.time() - paso_3_start_time
@@ -977,33 +983,37 @@ def paso_4( linkDeGuardado):
     paso_4_start_time = time.time()
     print("\n Paso 4\n ")
     #carga de data
+    data1x1 = []
+    data2x2 = []
+    data3x3 = []
+    data4x4 = []
     archive_path = get_archive_paths(linkDeGuardado + "/Predicts")
     for data_path in archive_path:
         if ("2X2") in data_path:
             linkDeGuardado = linkDeGuardado + "/Predicts/2X2"
             create_folder_if_not_exists(linkDeGuardado + "/Predicts/2X2")
-            data2x2 = []
+           
             data = np.load(data_path)
             data2x2.append(data)
             break
         elif ("3X3") in data_path:
             linkDeGuardado = linkDeGuardado + "/Predicts/3X3"
             create_folder_if_not_exists(linkDeGuardado + "/Predicts/3X3")
-            data3x3 = []
+            
             data = np.load(data_path)
             data3x3.append(data)
             break
         elif ("4X4") in data_path:
             linkDeGuardado = linkDeGuardado + "/Predicts/4X4"
             create_folder_if_not_exists(linkDeGuardado + "/Predicts/4X4")
-            data4x4 = []
+            
             data = np.load(data_path)
             data4x4.append(data)
             break
         else:
             linkDeGuardado = linkDeGuardado + "/Predicts/1X1"
             create_folder_if_not_exists(linkDeGuardado + "/Predicts/1X1")
-            data1x1 = []
+           
             data = np.load(data_path)
             data1x1.append(data)
             np.save(linkDeGuardado + "/Predicts/1X1.npy", data1x1)
@@ -1122,7 +1132,7 @@ def paso_5(rutaDB, data1x1 , data2x2, data3x3, data4x4 , window, classesBalanced
     return paso_5_duration
 
 def main():
-    linkDeGuardado = "DroughtDatasetMask/Parte1/Recorte/"
+    linkDeGuardado = "DroughtDatasetMask/ModularPartes/"
     carpeta = get_user_input()
     linkDeGuardado = create_folder_if_not_exists(linkDeGuardado, carpeta)
     start_total_time = start_time_monitoring()
@@ -1148,7 +1158,8 @@ def main():
 
     with strategy.scope():
         
-        paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
+        ##paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
+        paso_1_duration = paso_1(folder_path="/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
         
 
         paso_2_duration = paso_2( folder_path=linkDeGuardado,linkDeGuardado=linkDeGuardado)
@@ -1157,7 +1168,7 @@ def main():
 
         paso_4_duration, data1x1, data2x2, data3x3, data4x4  = paso_4( linkDeGuardado)
 
-        paso_5_duration = paso_5( "C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",data1x1, data2x2, data3x3, data4x4, window, classesBalanced, horizon, linkDeGuardado, channels)
+        paso_5_duration = paso_5( "/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",data1x1, data2x2, data3x3, data4x4, window, classesBalanced, horizon, linkDeGuardado, channels)
         
         training_duration = end_time_monitoring(start_total_time)
         time_monitoring(linkDeGuardado, training_duration, paso_1_duration, paso_2_duration, paso_3_duration, paso_4_duration, paso_5_duration)
