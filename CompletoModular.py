@@ -612,7 +612,7 @@ def fragment_picture(folder_path, folder_save):
     """
     #sizes hechas a mano para 120x360
     sizes = {
-        '1X1': [(0, 0, 360, 120)],
+        #'1X1': [(0, 0, 360, 120)],
         '2X2': [(0,  0, 180, 60), (170,  0, 190, 60), 
                 (0, 50, 180, 70), (170, 50, 190, 70)
                 ],
@@ -703,11 +703,13 @@ def create_npy_from_images(folder_path, folder_save):
     #print(images_array.shape)
  
     #from folder_path extract the name of the folder
-    crop_name = folder_path.split('/')[-1]
+    #crop_name = folder_path.split('/')[-2]
     ##print("folder_name",folder_name)
-    crop_name = crop_name.replace("\\", "_")
+    #crop_name = crop_name.replace("\\", "_")
+    crop_name = folder_path.split('/')[-1]
 
-    folder_name = crop_name.split('_')[1]
+    #folder_name = crop_name.split('_')[1]
+    folder_name = folder_path.split('/')[-2]
 
     if not os.path.exists(folder_save+'/npy/'+folder_name ):
         os.makedirs(folder_save+'/npy/'+folder_name)
@@ -774,7 +776,7 @@ def paso_2(folder_path, linkDeGuardado):
     for folder_path in folder_paths:
         #print(folder_path)
         if ("crop") in folder_path:
-            print(folder_path)
+            #print(folder_path)
             create_npy_from_images(folder_path, linkDeGuardado)
         #create_npy_from_images(folder_path, linkDeGuardado)
         
@@ -807,6 +809,7 @@ def paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGua
 
     for data_path in data_paths:
         if ("crop") in data_path:
+            print("data_path", data_path)
             if ("2X2") in data_path:
                 create_folder_if_not_exists(linkDeGuardadoViejo , "/Predicts/2X2")
                 linkDeGuardado = linkDeGuardadoViejo + "/Predicts/2X2"
@@ -1161,14 +1164,14 @@ def main():
 
     with strategy.scope():
         
-        paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
-        #paso_1_duration = paso_1(folder_path="/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
+        #paso_1_duration = paso_1(folder_path="C:/Users/aspr/Desktop/MCC/codigo/Dataset/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
+        paso_1_duration = paso_1(folder_path="/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",linkDeGuardado=linkDeGuardado)
         
 
         paso_2_duration = paso_2( folder_path=linkDeGuardado,linkDeGuardado=linkDeGuardado)
+        
+        paso_3_duration = paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado , classesBalanced)
         sys.exit()
-        #paso_3_duration = paso_3( window, rows, cols, channels, bach_size, epochs, patience, linkDeGuardado , classesBalanced)
-
         #paso_4_duration, data1x1, data2x2, data3x3, data4x4  = paso_4( linkDeGuardado)
 
         #paso_5_duration = paso_5( "/media/mccdual2080/Almacenamiengto/SahirProjects/SahirReyes/DataSet/DroughtDataset120x360GrayActJun25",data1x1, data2x2, data3x3, data4x4, window, classesBalanced, horizon, linkDeGuardado, channels)
